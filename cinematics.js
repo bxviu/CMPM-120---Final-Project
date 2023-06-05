@@ -8,7 +8,7 @@ class Intro extends Phaser.Scene
     {
         
 
-        const text = this.add.text(400, 300, 'Path of Purity\n Scene Flow', { align: 'center' }, 0xFF69B4);
+        const text = this.add.text(400, 300, 'Path of Purity\nCinematics', { align: 'center' }, 0xFF69B4);
         text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
 
         text.setOrigin(0.5, 0.5);
@@ -55,7 +55,7 @@ const config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    backgroundColor: '#869d4d',
+    backgroundColor: '#FFC0CB',
     parent: 'phaser-example',
     scene: [Intro, Victory]
 };
