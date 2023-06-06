@@ -1,17 +1,17 @@
 import HelperScene from '../helper.js';
 
+let visits = 0;
 
-class Intro extends Phaser.Scene
+class Title extends Phaser.Scene
 {   
     constructor() {
-        super('intro')
+        super('title')
     }
-    
     create ()
     {
         
 
-        const text = this.add.text(400, 300, 'Scene Flow', { align: 'center' }, 0xFF69B4);
+        const text = this.add.text(400, 300, 'Title Scene', { align: 'center' }, 0xFF69B4);
         text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
 
         text.setOrigin(0.5, 0.5);
@@ -19,17 +19,123 @@ class Intro extends Phaser.Scene
         text.setFontFamily('Arial');
         text.setFontStyle('bold');
         text.setFontSize(100);
-
         text.preFX.setPadding(32);
-
         const fx = text.preFX.addShadow(0, 0, 0.06, 0.75, 0x000000, 4, 0.8);
 
-        // adding start button 
-
-        
         this.input.on('pointerdown', () => {
             this.cameras.main.fade(1000, 0,0,0);
-            this.time.delayedCall(1000, () => this.scene.start('stat'));
+            this.time.delayedCall(1000, () => this.scene.start('transition1'));
+        });
+    }
+}
+class Transition1 extends Phaser.Scene
+{   
+    constructor() {
+        super('transition1')
+    }
+    create ()
+    {
+        
+
+        const text = this.add.text(400, 300, 'Transition 1', { align: 'center' }, 0xFF69B4);
+        text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
+
+        text.setOrigin(0.5, 0.5);
+        text.setResolution(window.devicePixelRatio);
+        text.setFontFamily('Arial');
+        text.setFontStyle('bold');
+        text.setFontSize(100);
+        text.preFX.setPadding(32);
+        const fx = text.preFX.addShadow(0, 0, 0.06, 0.75, 0x000000, 4, 0.8);
+
+        this.input.on('pointerdown', () => {
+            this.cameras.main.fade(1000, 0,0,0);
+            this.time.delayedCall(1000, () => this.scene.start('gameplay'));
+        });
+    }
+}
+class Gameplay extends Phaser.Scene
+{   
+    constructor() {
+        super('gameplay')
+    }
+    create ()
+    {
+        
+
+        const text = this.add.text(400, 300, 'Gameplay', { align: 'center' }, 0xFF69B4);
+        text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
+
+        text.setOrigin(0.5, 0.5);
+        text.setResolution(window.devicePixelRatio);
+        text.setFontFamily('Arial');
+        text.setFontStyle('bold');
+        text.setFontSize(100);
+        text.preFX.setPadding(32);
+        const fx = text.preFX.addShadow(0, 0, 0.06, 0.75, 0x000000, 4, 0.8);
+        visits ++;
+        this.input.on('pointerdown', () => {
+            this.cameras.main.fade(1000, 0,0,0);
+            if (visits == 1){
+                this.time.delayedCall(1000, () => this.scene.start('transition2'));
+            }
+            if (visits == 2){
+                this.time.delayedCall(1000, () => this.scene.start('transition3'));
+            }
+            if (visits == 3){
+                this.time.delayedCall(1000, () => this.scene.start('stat'));
+            }
+        });
+    }
+}
+class Transition2 extends Phaser.Scene
+{   
+    constructor() {
+        super('transition2')
+    }
+    create ()
+    {
+        
+
+        const text = this.add.text(400, 300, 'Transition 2 \n 20 years later', { align: 'center' }, 0xFF69B4);
+        text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
+
+        text.setOrigin(0.5, 0.5);
+        text.setResolution(window.devicePixelRatio);
+        text.setFontFamily('Arial');
+        text.setFontStyle('bold');
+        text.setFontSize(100);
+        text.preFX.setPadding(32);
+        const fx = text.preFX.addShadow(0, 0, 0.06, 0.75, 0x000000, 4, 0.8);
+        this.input.on('pointerdown', () => {
+            this.cameras.main.fade(1000, 0,0,0);
+            this.time.delayedCall(1000, () => this.scene.start('gameplay'));
+        });
+    }
+}
+class Transition3 extends Phaser.Scene
+{   
+    constructor() {
+        super('transition3')
+    }
+    create ()
+    {
+        
+
+        const text = this.add.text(400, 300, 'Transition 3 \n 40 years later', { align: 'center' }, 0xFF69B4);
+        text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
+
+        text.setOrigin(0.5, 0.5);
+        text.setResolution(window.devicePixelRatio);
+        text.setFontFamily('Arial');
+        text.setFontStyle('bold');
+        text.setFontSize(100);
+        text.preFX.setPadding(32);
+        const fx = text.preFX.addShadow(0, 0, 0.06, 0.75, 0x000000, 4, 0.8);
+
+        this.input.on('pointerdown', () => {
+            this.cameras.main.fade(1000, 0,0,0);
+            this.time.delayedCall(1000, () => this.scene.start('gameplay'));
         });
     }
 }
@@ -75,12 +181,15 @@ class Stat extends Phaser.Scene
         timeText2.setFontSize(this.w/40);
         timeText2.setTint(0x000000);
 
+
+
         this.input.on('pointerdown', () => {
             this.cameras.main.fade(1000, 0,0,0);
             this.time.delayedCall(1000, () => this.scene.start('end'));
         });
     }
 }
+
 class End extends HelperScene
 {   
     totalSteps = 20;
@@ -94,18 +203,12 @@ class End extends HelperScene
         this.w = this.game.config.width;
         this.h = this.game.config.height;
 
-        const text = this.add.text(this.w/2, -100, "");
-        text.setOrigin(0.5);
-        text.setFontSize(this.w/20);
-        text.setTint(0x000000);  
-
-        const text1 = this.add.text(this.w/2, -100, "");
-
 
 
         this.label = this.add.text(100, 100, '')
 		.setWordWrapWidth(this.w*14/16)
         .setFontSize(this.w/20)
+        .setTint(0x000000)
 
 	    this.typewriteTextWrapped('I wonder.... \nWhat else is out there???\n\nThe End')
 
@@ -153,11 +256,11 @@ class Credits extends Phaser.Scene
         text5.setTint(0x000000);
 
         
-        const text12 = this.add.text(this.w*7/10, -50, "Benthan Vu");
+        const text12 = this.add.text(this.w*6.5/10, -50, "Benthan Vu");
         text12.setFontSize(this.w/35);
         text12.setTint(0x000000);
 
-        const text22 = this.add.text(this.w*7/10, this.h + 50, "Kyler Mekmorakoth");
+        const text22 = this.add.text(this.w*6.5/10, this.h + 50, "Kyler Mekmorakoth");
         text22.setFontSize(this.w/35);
         text22.setTint(0x000000);
 
@@ -165,7 +268,7 @@ class Credits extends Phaser.Scene
         text32.setFontSize(this.w/35);
         text32.setTint(0x000000);
 
-        const text42 = this.add.text(this.w*7/10, -50, "Michael Law");
+        const text42 = this.add.text(this.w*6.5/10, -50, "Michael Law");
         text42.setFontSize(this.w/35);
         text42.setTint(0x000000);
 
@@ -194,7 +297,7 @@ class Credits extends Phaser.Scene
                 },
                 {
                     targets: text32,
-                    x: this.w*7/10,
+                    x: this.w*6.5/10,
                     flipX: false,
                     yoyo: false,
                     duration: 1200,
@@ -210,7 +313,7 @@ class Credits extends Phaser.Scene
                 },
                 {
                     targets: text52,
-                    x: this.w*7/10,
+                    x: this.w*6.5/10,
                     flipX: false,
                     yoyo: false,
                     duration: 1200,
@@ -225,28 +328,9 @@ class Credits extends Phaser.Scene
 
         this.input.on('pointerdown', () => {
             this.cameras.main.fade(1000, 0,0,0);
-            this.time.delayedCall(1000, () => this.scene.start('victory'));
+            this.time.delayedCall(1000, () => this.scene.start('title'));
         });
         // working on in the scene-flow-1 html.
-    }
-}
-class Victory extends Phaser.Scene{
-    constructor() {
-        super('victory');
-    }
-    
-    create() {
-        const text = this.add.text(400, 150, 'Congrats you win!', { align: 'center' }, 0xFF69B4);
-        text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
-        text.setOrigin(0.5, 0.5);
-        text.setResolution(window.devicePixelRatio);
-        text.setFontFamily('Arial');
-        text.setFontStyle('bold');
-        text.setFontSize(100);
-
-        text.preFX.setPadding(32);
-
-        this.input.on('pointerdown', () => this.scene.start('intro'));
     }
 }
 
@@ -256,7 +340,7 @@ const config = {
     height: 600,
     backgroundColor: '#869d4d',
     parent: 'phaser-example',
-    scene: [Intro, Stat, End, Credits, Victory]
+    scene: [Title, Transition1, Gameplay, Transition2, Transition3, Stat, End, Credits]
 };
 
 const game = new Phaser.Game(config);

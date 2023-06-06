@@ -1,5 +1,7 @@
 import HelperScene from './helper.js';
 
+let visits = 0;
+
 class Title extends Phaser.Scene
 {   
     constructor() {
@@ -71,10 +73,18 @@ class Gameplay extends Phaser.Scene
         text.setFontSize(100);
         text.preFX.setPadding(32);
         const fx = text.preFX.addShadow(0, 0, 0.06, 0.75, 0x000000, 4, 0.8);
-
+        visits ++;
         this.input.on('pointerdown', () => {
             this.cameras.main.fade(1000, 0,0,0);
-            this.time.delayedCall(1000, () => this.scene.start('transition2'));
+            if (visits == 1){
+                this.time.delayedCall(1000, () => this.scene.start('transition2'));
+            }
+            if (visits == 2){
+                this.time.delayedCall(1000, () => this.scene.start('transition3'));
+            }
+            if (visits == 3){
+                this.time.delayedCall(1000, () => this.scene.start('stat'));
+            }
         });
     }
 }
@@ -87,7 +97,7 @@ class Transition2 extends Phaser.Scene
     {
         
 
-        const text = this.add.text(400, 300, 'Transition 2', { align: 'center' }, 0xFF69B4);
+        const text = this.add.text(400, 300, 'Transition 2 \n 20 years later', { align: 'center' }, 0xFF69B4);
         text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
 
         text.setOrigin(0.5, 0.5);
@@ -97,10 +107,9 @@ class Transition2 extends Phaser.Scene
         text.setFontSize(100);
         text.preFX.setPadding(32);
         const fx = text.preFX.addShadow(0, 0, 0.06, 0.75, 0x000000, 4, 0.8);
-
         this.input.on('pointerdown', () => {
             this.cameras.main.fade(1000, 0,0,0);
-            this.time.delayedCall(1000, () => this.scene.start('transition3'));
+            this.time.delayedCall(1000, () => this.scene.start('gameplay'));
         });
     }
 }
@@ -113,7 +122,7 @@ class Transition3 extends Phaser.Scene
     {
         
 
-        const text = this.add.text(400, 300, 'Transition 3', { align: 'center' }, 0xFF69B4);
+        const text = this.add.text(400, 300, 'Transition 3 \n 40 years later', { align: 'center' }, 0xFF69B4);
         text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
 
         text.setOrigin(0.5, 0.5);
@@ -126,7 +135,7 @@ class Transition3 extends Phaser.Scene
 
         this.input.on('pointerdown', () => {
             this.cameras.main.fade(1000, 0,0,0);
-            this.time.delayedCall(1000, () => this.scene.start('stat'));
+            this.time.delayedCall(1000, () => this.scene.start('gameplay'));
         });
     }
 }
