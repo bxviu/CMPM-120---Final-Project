@@ -5,15 +5,27 @@ class Intro extends Phaser.Scene
     }
 
     preload() {
-        this.load.image("tiles", "../assets/kenney_tiny-town/Tilemap/tilemap.png");
-        this.load.tilemapTiledJSON("map", "../assets/test.tmj");
+        this.load.path = './assets/';
+        this.load.image("tiles", "kenney_tiny-town/Tilemap/tilemap.png");
+        this.load.tilemapTiledJSON("map", "test.tmj");
+        this.load.path = './assets/images/';
+        this.load.image('playerImage', 'placeholder3.png');
+        this.load.image('item1', 'placeholder7-bow.png');
+        this.load.path = './assets/sounds/';
+        this.load.audio('bgMusic', "miamiSong.wav");
+        this.load.audio('plink', "plink.mp3")
     }
     
     create ()
     {
-        console.log(Phaser)
-        this.player = this.add.rectangle(400, 300, 50, 50, 0x00ff00).setDepth(1);
-        this.physics.add.existing(this.player);
+        let bgMusic = this.sound.add('bgMusic', { loop: true });
+        bgMusic.play();
+        console.log(this)
+        this.player = (new Player(this, 400, 300, 'playerImage'));
+        // this.add.sprite(400, 300, 'playerImage');
+        // console.log(Phaser.GameObjects.Sprite)
+        // this.player = this.add.rectangle(400, 300, 50, 50, 0x00ff00).setDepth(1);
+        // this.physics.add.existing(this.player);
         console.log(this.player);
         const map = this.make.tilemap({ key: "map" });
 
@@ -31,30 +43,18 @@ class Intro extends Phaser.Scene
 
         const debugGraphics = this.add.graphics().setAlpha(0.75);
         worldLayer.renderDebug(debugGraphics, {
-        tileColor: null, // Color of non-colliding tiles
-        collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-        faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
-        });
+            tileColor: null, // Color of non-colliding tiles
+            collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+            faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+            });
         this.cursors = this.input.keyboard.createCursorKeys();
         console.log(this.cursors);
         this.physics.add.collider(this.player, worldLayer);
-        // const cam = this.cameras.main;
+
         this.camFocusX = this.player.x;
         this.camFocusY = this.player.y;
 
-        this.item = new Item(this, this.player.x, this.player.y, 'item');
-        // this.cursors.down.onDown(() => {
-        //     this.item.visual.y += 10;
-        
-        // })
-        // this.physics.overlap(this.player.body, this.item.visual.body, (player, item) =>
-        // {
-        //     if (this.cursors.space.isDown)
-        //     {
-        //         this.item.visual.destroy();
-        //     }
-        //     console.log("over")
-        // });
+        this.item = new Item(this, 20, 400, 'Placeholder-Bow');
     }
 
     update(time, delta) {
@@ -65,10 +65,12 @@ class Intro extends Phaser.Scene
       
         // Horizontal movement
         if (this.cursors.left.isDown) {
+            this.player.flipX = true;
             this.player.body.velocity.x = -100;
             if (this.camFocusX > this.player.x - 50)
                 this.camFocusX = this.camFocusX - delta * 0.15;
         } else if (this.cursors.right.isDown) {
+            this.player.flipX = false;
             this.player.body.velocity.x = 100;
             if (this.camFocusX < this.player.x + 50)
                 this.camFocusX = this.camFocusX + delta * 0.15;
@@ -84,15 +86,9 @@ class Intro extends Phaser.Scene
             if (this.camFocusY < this.player.y + 50) {
                 this.camFocusY = this.camFocusY + delta * 0.15;
             }
-            // else {
-            //     this.camFocusY = this.player.y + 100;
-            // }
         }
 
-        if (this.cursors.left.isDown || this.cursors.right.isDown || this.cursors.up.isDown || this.cursors.down.isDown) {
-            
-        }
-        else {
+        if (!(this.cursors.left.isDown || this.cursors.right.isDown || this.cursors.up.isDown || this.cursors.down.isDown)) {
             if (this.camFocusX > this.player.x+5) {
                 this.camFocusX = this.camFocusX - delta * 0.3;
             }
@@ -111,37 +107,59 @@ class Intro extends Phaser.Scene
             else {
                 this.camFocusY = this.player.y;
             }
-            
-            
             // this.camAnimOffset = Math.max(this.camAnimOffset - delta * 0.1, 0)
         }
 
         if (this.cursors.space.isDown) {
             console.log('space pressed');
-            this.physics.overlap(this.player.body, this.item.visual.body, (player, item) =>
-            {
-                // if (this.cursors.space.isDown)
-                // {
-                    this.item.visual.destroy();
-                // }
+            this.physics.overlap(this.player.body, this.item.body, (player, item) =>
+            {   
+                this.player.gainItem(this.item.name);
+                this.item.destroy();
                 console.log("over")
+                let plinkNoise = this.sound.add('plink', { loop: false });
+                plinkNoise.play();
             });
         }
+        if (this.cursors.shift.isDown) {
+            let plinkNoise = this.sound.add('plink', { loop: false });
+            plinkNoise.play();
+            this.scene.pause('intro');
+            this.scene.launch('inventory', {items:this.player.items});
+        }
       
-        // Normalize and scale the velocity so that player can't move faster along a diagonal
-        // this.player.body.velocity.normalize().scale(this.player.velocity);
       }
 
 }
 
-class Item {
-    constructor(scene, x, y, name) {
+class Player extends Phaser.GameObjects.Sprite
+{
+    constructor(scene, x, y, name, items) {
+        super(scene, x, y, 'playerImage');
+        this.setScale(0.25).setDepth(2).setOrigin(0.5);
         this.scene = scene;
+        this.scene.add.existing(this);
         this.name = name;
-        this.visual = this.scene.add.rectangle(x, y, 50, 50, 0xffffff).setOrigin(0.5);
-        this.scene.physics.add.existing(this.visual);
+        this.items = items || [];
+        this.scene.physics.add.existing(this);
     }
 
+    gainItem(item) {
+        this.items.push(item);
+    }
+
+}
+
+class Item extends Phaser.GameObjects.Sprite
+{
+    constructor(scene, x, y, name) {
+        super(scene, x, y, 'item1');
+        this.setScale(0.2).setDepth(1).setOrigin(0.5);
+        this.scene.add.existing(this);
+        this.scene = scene;
+        this.name = name;
+        this.scene.physics.add.existing(this);
+    }
 
 }
 
@@ -158,7 +176,7 @@ const config = {
           gravity: { y: 0 } // Top down game, so no gravity
         }
     },
-    scene: [Intro]
+    scene: [Intro, Inventory]
 };
 
 const game = new Phaser.Game(config);
