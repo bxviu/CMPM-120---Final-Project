@@ -11,6 +11,7 @@ class Intro extends Phaser.Scene
         this.load.path = './assets/images/';
         this.load.image('playerImage', 'placeholder3.png');
         this.load.image('item1', 'placeholder7-bow.png');
+        this.load.image('item2', 'placeholder6-arrow.png');
         this.load.path = './assets/sounds/';
         this.load.audio('bgMusic', "miamiSong.wav");
         this.load.audio('plink', "plink.mp3")
@@ -54,7 +55,9 @@ class Intro extends Phaser.Scene
         this.camFocusX = this.player.x;
         this.camFocusY = this.player.y;
 
-        this.item = new Item(this, 20, 400, 'Placeholder-Bow');
+        this.items = [];
+        this.items.push(new Item(this, 20, 400, 'bow', 'item1', {displayName:'Placeholder-Bow'}));
+        this.items.push(new Item(this, 300, 600, 'arrow', 'item2', {displayName:'Placeholder-Arrow'}));
     }
 
     update(time, delta) {
@@ -112,13 +115,19 @@ class Intro extends Phaser.Scene
 
         if (this.cursors.space.isDown) {
             console.log('space pressed');
-            this.physics.overlap(this.player.body, this.item.body, (player, item) =>
-            {   
-                this.player.gainItem(this.item.name);
-                this.item.destroy();
-                console.log("over")
-                let plinkNoise = this.sound.add('plink', { loop: false });
-                plinkNoise.play();
+            this.items.forEach(item => {
+                this.physics.overlap(this.player.body, item.body, (player, itemBody) =>
+                {   
+                    this.player.gainItem({
+                        name:item.name, 
+                        displayName:item.displayName,
+                        imageKey:item.imageKey
+                    });
+                    item.destroy();
+                    console.log("over")
+                    let plinkNoise = this.sound.add('plink', { loop: false });
+                    plinkNoise.play();
+                });
             });
         }
         if (this.cursors.shift.isDown) {
@@ -132,16 +141,26 @@ class Intro extends Phaser.Scene
 
 }
 
-class Player extends Phaser.GameObjects.Sprite
+class Entity extends Phaser.GameObjects.Sprite
 {
-    constructor(scene, x, y, name, items) {
-        super(scene, x, y, 'playerImage');
-        this.setScale(0.25).setDepth(2).setOrigin(0.5);
+    constructor(scene, x, y, image, name, config) {
+        super(scene, x, y, image);
+        this.setScale(config.scale || 0.25).setDepth(config.depth || 1).setOrigin(config.origin || 0.5);
         this.scene = scene;
         this.scene.add.existing(this);
         this.name = name;
-        this.items = items || [];
+        this.imageKey = image;
+        this.displayName = config.displayName || name;
         this.scene.physics.add.existing(this);
+    }
+
+}
+
+class Player extends Entity
+{
+    constructor(scene, x, y, name, items) {
+        super(scene, x, y, 'playerImage', name, {scale:0.25, depth:2, origin:0.5});
+        this.items = items || [];
     }
 
     gainItem(item) {
@@ -150,19 +169,13 @@ class Player extends Phaser.GameObjects.Sprite
 
 }
 
-class Item extends Phaser.GameObjects.Sprite
+class Item extends Entity
 {
-    constructor(scene, x, y, name) {
-        super(scene, x, y, 'item1');
-        this.setScale(0.2).setDepth(1).setOrigin(0.5);
-        this.scene.add.existing(this);
-        this.scene = scene;
-        this.name = name;
-        this.scene.physics.add.existing(this);
+    constructor(scene, x, y, name, image, config) {
+        super(scene, x, y, image, name, config || {scale:0.25, depth:1, origin:0.5});
     }
 
 }
-
 
 const config = {
     type: Phaser.AUTO,

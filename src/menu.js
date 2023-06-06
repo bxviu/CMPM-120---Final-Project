@@ -119,6 +119,7 @@ class Inventory extends Menu {
         super.preload();
         this.load.path = './assets/images/';
         this.load.image('item1', 'placeholder7-bow.png');
+        this.load.image('item2', 'placeholder6-arrow.png');
     }
     init(data) {
         console.log(data.items);
@@ -138,14 +139,14 @@ class Inventory extends Menu {
         // console.log(this.items);
         this.items.forEach(item => {
             let image = null;
-            if (item == "Placeholder-Bow") {
-                console.log("bow");
-                image = this.add.image(imageX, imageY, 'item1').setOrigin(0.5);
-            }
+            // if (item.name == "bow") {
+                console.log(item.displayName);
+                image = this.add.image(imageX, imageY, item.imageKey).setOrigin(0.5);
+            // }
             if (image) {
                 image.setScale(0.25);
                 image.setDepth(1);
-                imageX += 70;
+                imageX += 100;
                 this.wholeContainer.add([image]);
             }
         });    
