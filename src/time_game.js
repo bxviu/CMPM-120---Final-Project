@@ -42,12 +42,13 @@ class Intro extends Phaser.Scene
 
         worldLayer.setCollisionByProperty({ collides: true });
 
-        const debugGraphics = this.add.graphics().setAlpha(0.75);
-        worldLayer.renderDebug(debugGraphics, {
-            tileColor: null, // Color of non-colliding tiles
-            collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-            faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
-            });
+        // const debugGraphics = this.add.graphics().setAlpha(0.75);
+        // worldLayer.renderDebug(debugGraphics, {
+        //     tileColor: null, // Color of non-colliding tiles
+        //     collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+        //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+        //     });
+            
         this.cursors = this.input.keyboard.createCursorKeys();
         console.log(this.cursors);
         this.physics.add.collider(this.player, worldLayer);
@@ -58,9 +59,23 @@ class Intro extends Phaser.Scene
         this.items = [];
         this.items.push(new Item(this, 20, 400, 'bow', 'item1', {displayName:'Placeholder-Bow'}));
         this.items.push(new Item(this, 300, 600, 'arrow', 'item2', {displayName:'Placeholder-Arrow'}));
+
+        this.sceneDuration = 0;
+        this.timer = 0;
+        this.startTime = 0;
+        this.totaltime = 90;
+        this.timerDisplay = this.add.text(400, 30, "Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s", {font: "40px Arial", fill: "#FFFFFF"});
+        this.timerDisplay.setOrigin(0.5, 0.5).setScrollFactor(0);
+
+        this.add.text(400, this.player.y-50, "arrow keys to move, \nspace while touching an item to pick it up, \nshift to open inventory")
+        
     }
 
     update(time, delta) {
+        if (!this.reset) {
+            this.sceneDuration = this.sys.game.loop.time - this.startTime;
+        }
+        this.timerDisplay.setText("Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s");
         // Stop any previous movement from the last frame
         this.player.body.velocity.x = 0;
         this.player.body.velocity.y = 0;

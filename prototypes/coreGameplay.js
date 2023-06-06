@@ -3,52 +3,193 @@ class Intro extends Phaser.Scene
     constructor() {
         super('intro')
     }
+
+    preload() {
+        this.load.path = './assets/';
+        this.load.image("tiles", "kenney_tiny-town/Tilemap/tilemap.png");
+        this.load.tilemapTiledJSON("map", "test.tmj");
+        this.load.path = './assets/images/';
+        this.load.image('playerImage', 'placeholder3.png');
+        this.load.image('item1', 'placeholder7-bow.png');
+        this.load.image('item2', 'placeholder6-arrow.png');
+        this.load.path = './assets/sounds/';
+        this.load.audio('bgMusic', "miamiSong.wav");
+        this.load.audio('plink', "plink.mp3")
+    }
     
     create ()
     {
+        let bgMusic = this.sound.add('bgMusic', { loop: true });
+        bgMusic.play();
+        console.log(this)
+        this.player = (new Player(this, 400, 300, 'playerImage'));
+        // this.add.sprite(400, 300, 'playerImage');
+        // console.log(Phaser.GameObjects.Sprite)
+        // this.player = this.add.rectangle(400, 300, 50, 50, 0x00ff00).setDepth(1);
+        // this.physics.add.existing(this.player);
+        console.log(this.player);
+        const map = this.make.tilemap({ key: "map" });
+
+        // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
+        // Phaser's cache (i.e. the name you used in preload)
+        const tileset = map.addTilesetImage("tilemap", "tiles");
+
+        // Parameters: layer name (or index) from Tiled, tileset, x, y
+        const belowLayer = map.createLayer("below", tileset, 0, 0);
+        const worldLayer = map.createLayer("world", tileset, 0, 0);
+        const aboveLayer = map.createLayer("above", tileset, 0, 0);
+        aboveLayer.setDepth(10);
+
+        worldLayer.setCollisionByProperty({ collides: true });
+
+        // const debugGraphics = this.add.graphics().setAlpha(0.75);
+        // worldLayer.renderDebug(debugGraphics, {
+        //     tileColor: null, // Color of non-colliding tiles
+        //     collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+        //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+        //     });
+            
+        this.cursors = this.input.keyboard.createCursorKeys();
+        console.log(this.cursors);
+        this.physics.add.collider(this.player, worldLayer);
+
+        this.camFocusX = this.player.x;
+        this.camFocusY = this.player.y;
+
+        this.items = [];
+        this.items.push(new Item(this, 20, 400, 'bow', 'item1', {displayName:'Placeholder-Bow'}));
+        this.items.push(new Item(this, 300, 600, 'arrow', 'item2', {displayName:'Placeholder-Arrow'}));
+
+        this.sceneDuration = 0;
+        this.timer = 0;
+        this.startTime = 0;
+        this.totaltime = 90;
+        this.timerDisplay = this.add.text(400, 30, "Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s", {font: "40px Arial", fill: "#FFFFFF"});
+        this.timerDisplay.setOrigin(0.5, 0.5).setScrollFactor(0);
+
+        this.add.text(400, this.player.y-50, "arrow keys to move, \nspace while touching an item to pick it up, \nshift to open inventory")
         
-
-        const text = this.add.text(400, 300, 'Core Gameplay', { align: 'center' }, 0xFF69B4);
-        text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
-
-        text.setOrigin(0.5, 0.5);
-        text.setResolution(window.devicePixelRatio);
-        text.setFontFamily('Arial');
-        text.setFontStyle('bold');
-        text.setFontSize(100);
-
-        text.preFX.setPadding(32);
-
-        const fx = text.preFX.addShadow(0, 0, 0.06, 0.75, 0x000000, 4, 0.8);
-
-        // adding start button 
-
-        
-        this.input.on('pointerdown', () => {
-            this.cameras.main.fade(1000, 0,0,0);
-            this.time.delayedCall(1000, () => this.scene.start('victory'));
-        });
     }
+
+    update(time, delta) {
+        if (!this.reset) {
+            this.sceneDuration = this.sys.game.loop.time - this.startTime;
+        }
+        this.timerDisplay.setText("Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s");
+        // Stop any previous movement from the last frame
+        this.player.body.velocity.x = 0;
+        this.player.body.velocity.y = 0;
+        this.cameras.main.centerOn(this.camFocusX, this.camFocusY);
+      
+        // Horizontal movement
+        if (this.cursors.left.isDown) {
+            this.player.flipX = true;
+            this.player.body.velocity.x = -100;
+            if (this.camFocusX > this.player.x - 50)
+                this.camFocusX = this.camFocusX - delta * 0.15;
+        } else if (this.cursors.right.isDown) {
+            this.player.flipX = false;
+            this.player.body.velocity.x = 100;
+            if (this.camFocusX < this.player.x + 50)
+                this.camFocusX = this.camFocusX + delta * 0.15;
+        }
+      
+        // Vertical movement
+        if (this.cursors.up.isDown) {
+            this.player.body.velocity.y = -100;
+            if (this.camFocusY > this.player.y - 50)
+                this.camFocusY = this.camFocusY - delta * 0.15;
+        } else if (this.cursors.down.isDown) {
+            this.player.body.velocity.y = 100;
+            if (this.camFocusY < this.player.y + 50) {
+                this.camFocusY = this.camFocusY + delta * 0.15;
+            }
+        }
+
+        if (!(this.cursors.left.isDown || this.cursors.right.isDown || this.cursors.up.isDown || this.cursors.down.isDown)) {
+            if (this.camFocusX > this.player.x+5) {
+                this.camFocusX = this.camFocusX - delta * 0.3;
+            }
+            else if (this.camFocusX < this.player.x-5) {
+                this.camFocusX = this.camFocusX + delta * 0.3;
+            }
+            else {
+                this.camFocusX = this.player.x;
+            }
+            if (this.camFocusY > this.player.y+5) {
+                this.camFocusY = this.camFocusY - delta * 0.3;
+            } 
+            else if (this.camFocusY < this.player.y-5) {
+                this.camFocusY = this.camFocusY + delta * 0.3;
+            }
+            else {
+                this.camFocusY = this.player.y;
+            }
+            // this.camAnimOffset = Math.max(this.camAnimOffset - delta * 0.1, 0)
+        }
+
+        if (this.cursors.space.isDown) {
+            console.log('space pressed');
+            this.items.forEach(item => {
+                this.physics.overlap(this.player.body, item.body, (player, itemBody) =>
+                {   
+                    this.player.gainItem({
+                        name:item.name, 
+                        displayName:item.displayName,
+                        imageKey:item.imageKey
+                    });
+                    item.destroy();
+                    console.log("over")
+                    let plinkNoise = this.sound.add('plink', { loop: false });
+                    plinkNoise.play();
+                });
+            });
+        }
+        if (this.cursors.shift.isDown) {
+            let plinkNoise = this.sound.add('plink', { loop: false });
+            plinkNoise.play();
+            this.scene.pause('intro');
+            this.scene.launch('inventory', {items:this.player.items});
+        }
+      
+      }
+
 }
 
-class Victory extends Phaser.Scene{
-    constructor() {
-        super('victory');
+class Entity extends Phaser.GameObjects.Sprite
+{
+    constructor(scene, x, y, image, name, config) {
+        super(scene, x, y, image);
+        this.setScale(config.scale || 0.25).setDepth(config.depth || 1).setOrigin(config.origin || 0.5);
+        this.scene = scene;
+        this.scene.add.existing(this);
+        this.name = name;
+        this.imageKey = image;
+        this.displayName = config.displayName || name;
+        this.scene.physics.add.existing(this);
     }
-    
-    create() {
-        const text = this.add.text(400, 150, 'Congrats you win!', { align: 'center' }, 0xFF69B4);
-        text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
-        text.setOrigin(0.5, 0.5);
-        text.setResolution(window.devicePixelRatio);
-        text.setFontFamily('Arial');
-        text.setFontStyle('bold');
-        text.setFontSize(100);
 
-        text.preFX.setPadding(32);
+}
 
-        this.input.on('pointerdown', () => this.scene.start('intro'));
+class Player extends Entity
+{
+    constructor(scene, x, y, name, items) {
+        super(scene, x, y, 'playerImage', name, {scale:0.25, depth:2, origin:0.5});
+        this.items = items || [];
     }
+
+    gainItem(item) {
+        this.items.push(item);
+    }
+
+}
+
+class Item extends Entity
+{
+    constructor(scene, x, y, name, image, config) {
+        super(scene, x, y, image, name, config || {scale:0.25, depth:1, origin:0.5});
+    }
+
 }
 
 const config = {
@@ -57,7 +198,13 @@ const config = {
     height: 600,
     backgroundColor: '#257098',
     parent: 'phaser-example',
-    scene: [Intro, Victory]
+    physics: {
+        default: "arcade",
+        arcade: {
+          gravity: { y: 0 } // Top down game, so no gravity
+        }
+    },
+    scene: [Intro, Inventory]
 };
 
 const game = new Phaser.Game(config);
