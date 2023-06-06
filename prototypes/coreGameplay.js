@@ -49,8 +49,6 @@ class Intro extends Phaser.Scene
         //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
         //     });
             
-        this.cursors = this.input.keyboard.createCursorKeys();
-        console.log(this.cursors);
         this.physics.add.collider(this.player, worldLayer);
 
         this.camFocusX = this.player.x;
@@ -67,14 +65,92 @@ class Intro extends Phaser.Scene
         this.timerDisplay = this.add.text(400, 30, "Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s", {font: "40px Arial", fill: "#FFFFFF"});
         this.timerDisplay.setOrigin(0.5, 0.5).setScrollFactor(0);
 
-        this.add.text(400, this.player.y-50, "arrow keys to move, \nspace while touching an item to pick it up, \nshift to open inventory")
-        
-    }
+        this.add.text(400, this.player.y-50, "arrows to move, \ninteract while touching an item to pick it up, \ntap inventory to open inventory")
+        this.leftArrow = this.add.text(50, 500, "<", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
+        this.rightArrow = this.add.text(100, 500, ">", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
+        this.upArrow = this.add.text(75, 475,  "^", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
+        this.downArrow = this.add.text(75, 525, "v", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
+        this.inventoryButton = this.add.text(20, 20, "Inventory", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
+        this.interactButton = this.add.text(600, 500, "Interact", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
+        this.delta = 0;
+        this.moving = {
+            left: false,
+            right: false,
+            up: false,
+            down: false,
+        };
+        //move player left when clicked
+        this.leftArrow.setInteractive({useHandCursor: true});
+        this.leftArrow.on('pointerdown', () => {
+            this.moving.left = true;
+        })
+        .on('pointerout', () => {
+            this.moving.left = false;
+        })
+        .on('pointerup', () => {
+            this.moving.left = false;
+        });
+        this.rightArrow.setInteractive({useHandCursor: true});
+        this.rightArrow.on('pointerdown', () => {
+            this.moving.right = true;
+        })
+        .on('pointerout', () => {
+            this.moving.right = false;
+        })
+        .on('pointerup', () => {
+            this.moving.right = false;
+        });
+        this.upArrow.setInteractive({useHandCursor: true});
+        this.upArrow.on('pointerdown', () => {
+            this.moving.up = true;
+        })
+        .on('pointerout', () => {
+            this.moving.up = false;
+        })
+        .on('pointerup', () => {
+            this.moving.up = false;
+        });
+        this.downArrow.setInteractive({useHandCursor: true});
+        this.downArrow.on('pointerdown', () => {
+            this.moving.down = true;
+        })
+        .on('pointerout', () => {
+            this.moving.down = false;
+        })
+        .on('pointerup', () => {
+            this.moving.down = false;
+        });
+
+        this.inventoryButton.setInteractive({useHandCursor: true});
+        this.inventoryButton.on('pointerdown', () => {
+            let plinkNoise = this.sound.add('plink', { loop: false });
+            plinkNoise.play();
+            this.scene.pause('intro');
+            this.scene.launch('inventory', {items:this.player.items});
+        });
+
+        this.interactButton.setInteractive({useHandCursor: true});
+        this.interactButton.on('pointerdown', () => {
+            this.items.forEach(item => {
+                this.physics.overlap(this.player.body, item.body, (player, itemBody) =>
+                {   
+                    this.player.gainItem({
+                        name:item.name, 
+                        displayName:item.displayName,
+                        imageKey:item.imageKey
+                    });
+                    item.destroy();
+                    console.log("over")
+                    let plinkNoise = this.sound.add('plink', { loop: false });
+                    plinkNoise.play();
+                });
+            });
+        });
+    }    
 
     update(time, delta) {
-        if (!this.reset) {
-            this.sceneDuration = this.sys.game.loop.time - this.startTime;
-        }
+        this.delta = delta;
+        this.sceneDuration = this.sys.game.loop.time - this.startTime;
         this.timerDisplay.setText("Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s");
         // Stop any previous movement from the last frame
         this.player.body.velocity.x = 0;
@@ -82,12 +158,12 @@ class Intro extends Phaser.Scene
         this.cameras.main.centerOn(this.camFocusX, this.camFocusY);
       
         // Horizontal movement
-        if (this.cursors.left.isDown) {
+        if (this.moving.left) {
             this.player.flipX = true;
             this.player.body.velocity.x = -100;
             if (this.camFocusX > this.player.x - 50)
                 this.camFocusX = this.camFocusX - delta * 0.15;
-        } else if (this.cursors.right.isDown) {
+        } else if (this.moving.right) {
             this.player.flipX = false;
             this.player.body.velocity.x = 100;
             if (this.camFocusX < this.player.x + 50)
@@ -95,18 +171,18 @@ class Intro extends Phaser.Scene
         }
       
         // Vertical movement
-        if (this.cursors.up.isDown) {
+        if (this.moving.up) {
             this.player.body.velocity.y = -100;
             if (this.camFocusY > this.player.y - 50)
                 this.camFocusY = this.camFocusY - delta * 0.15;
-        } else if (this.cursors.down.isDown) {
+        } else if (this.moving.down) {
             this.player.body.velocity.y = 100;
             if (this.camFocusY < this.player.y + 50) {
                 this.camFocusY = this.camFocusY + delta * 0.15;
             }
         }
 
-        if (!(this.cursors.left.isDown || this.cursors.right.isDown || this.cursors.up.isDown || this.cursors.down.isDown)) {
+        if (!(this.moving.left || this.moving.right || this.moving.up || this.moving.down)) {
             if (this.camFocusX > this.player.x+5) {
                 this.camFocusX = this.camFocusX - delta * 0.3;
             }
@@ -126,30 +202,6 @@ class Intro extends Phaser.Scene
                 this.camFocusY = this.player.y;
             }
             // this.camAnimOffset = Math.max(this.camAnimOffset - delta * 0.1, 0)
-        }
-
-        if (this.cursors.space.isDown) {
-            console.log('space pressed');
-            this.items.forEach(item => {
-                this.physics.overlap(this.player.body, item.body, (player, itemBody) =>
-                {   
-                    this.player.gainItem({
-                        name:item.name, 
-                        displayName:item.displayName,
-                        imageKey:item.imageKey
-                    });
-                    item.destroy();
-                    console.log("over")
-                    let plinkNoise = this.sound.add('plink', { loop: false });
-                    plinkNoise.play();
-                });
-            });
-        }
-        if (this.cursors.shift.isDown) {
-            let plinkNoise = this.sound.add('plink', { loop: false });
-            plinkNoise.play();
-            this.scene.pause('intro');
-            this.scene.launch('inventory', {items:this.player.items});
         }
       
       }

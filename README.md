@@ -42,12 +42,12 @@ Visual
 - Placeholder tilemap for the level
 
 Motion
-- Player movement using the arrow keys
-- Inventory animating in when player presses shift
+- Player movement using the arrows
+- Inventory animating in when player taps on the inventory
 - Camera moves slightly ahead of player in the direction they are moving
 
 Progression
-- Player can pick up items using space, which will be added to their inventory
+- Player can pick up items, which will be added to their inventory
 - A timer shows how much time the player has left in the world
 - Additionally, in [scene flow](https://bxviu.github.io/CMPM-120---Final-Project/scene-flow-1.html), there is progression of the story 
 
