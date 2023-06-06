@@ -1,3 +1,6 @@
+import HelperScene from '../helper.js';
+
+
 class Intro extends Phaser.Scene
 {   
     constructor() {
@@ -8,7 +11,7 @@ class Intro extends Phaser.Scene
     {
         
 
-        const text = this.add.text(400, 300, 'Path of Purity\n Scene Flow', { align: 'center' }, 0xFF69B4);
+        const text = this.add.text(400, 300, 'Scene Flow', { align: 'center' }, 0xFF69B4);
         text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
 
         text.setOrigin(0.5, 0.5);
@@ -71,6 +74,41 @@ class Stat extends Phaser.Scene
         const timeText2 = this.add.text(this.w*4/5, this.h*6/16, this.totalTime + " min");
         timeText2.setFontSize(this.w/40);
         timeText2.setTint(0x000000);
+
+        this.input.on('pointerdown', () => {
+            this.cameras.main.fade(1000, 0,0,0);
+            this.time.delayedCall(1000, () => this.scene.start('end'));
+        });
+    }
+}
+class End extends HelperScene
+{   
+    totalSteps = 20;
+    totalMems = 7;
+    totalTime = 100;
+    constructor() {
+        super('end')
+    }
+    create ()
+    {
+        this.w = this.game.config.width;
+        this.h = this.game.config.height;
+
+        const text = this.add.text(this.w/2, -100, "");
+        text.setOrigin(0.5);
+        text.setFontSize(this.w/20);
+        text.setTint(0x000000);  
+
+        const text1 = this.add.text(this.w/2, -100, "");
+
+
+
+        this.label = this.add.text(100, 100, '')
+		.setWordWrapWidth(this.w*14/16)
+        .setFontSize(this.w/20)
+
+	    this.typewriteTextWrapped('I wonder.... \nWhat else is out there???\n\nThe End')
+
 
         this.input.on('pointerdown', () => {
             this.cameras.main.fade(1000, 0,0,0);
@@ -218,7 +256,7 @@ const config = {
     height: 600,
     backgroundColor: '#869d4d',
     parent: 'phaser-example',
-    scene: [Intro, Stat, Credits, Victory]
+    scene: [Intro, Stat, End, Credits, Victory]
 };
 
 const game = new Phaser.Game(config);

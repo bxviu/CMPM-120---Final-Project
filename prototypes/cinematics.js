@@ -8,7 +8,7 @@ class Intro extends Phaser.Scene
     {
         
 
-        const text = this.add.text(400, 300, 'Path of Purity\nCinematics', { align: 'center' }, 0xFF69B4);
+        const text = this.add.text(400, 300, 'Cinematics', { align: 'center' }, 0xFF69B4);
         text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
 
         text.setOrigin(0.5, 0.5);

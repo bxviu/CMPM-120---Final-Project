@@ -1,3 +1,5 @@
+import HelperScene from './helper.js';
+
 class Title extends Phaser.Scene
 {   
     constructor() {
@@ -179,25 +181,28 @@ class Stat extends Phaser.Scene
     }
 }
 
-class End extends Phaser.Scene
+class End extends HelperScene
 {   
+    totalSteps = 20;
+    totalMems = 7;
+    totalTime = 100;
     constructor() {
         super('end')
     }
     create ()
     {
-        
+        this.w = this.game.config.width;
+        this.h = this.game.config.height;
 
-        const text = this.add.text(400, 300, 'End Screen', { align: 'center' }, 0xFF69B4);
-        text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
 
-        text.setOrigin(0.5, 0.5);
-        text.setResolution(window.devicePixelRatio);
-        text.setFontFamily('Arial');
-        text.setFontStyle('bold');
-        text.setFontSize(100);
-        text.preFX.setPadding(32);
-        const fx = text.preFX.addShadow(0, 0, 0.06, 0.75, 0x000000, 4, 0.8);
+
+        this.label = this.add.text(100, 100, '')
+		.setWordWrapWidth(this.w*14/16)
+        .setFontSize(this.w/20)
+        .setTint(0x000000)
+
+	    this.typewriteTextWrapped('I wonder.... \nWhat else is out there???\n\nThe End')
+
 
         this.input.on('pointerdown', () => {
             this.cameras.main.fade(1000, 0,0,0);
