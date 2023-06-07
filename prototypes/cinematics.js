@@ -35,14 +35,30 @@ class Menu extends Phaser.Scene{
     constructor(){
         super("menu");
     }
+    idleMotionTween(object, x, y){
+        this.tweens.chain({
+            targets: object,
+            repeat: -1,
+            tweens:[
+            {x: x+Phaser.Math.Between(0,4),y:y+Phaser.Math.Between(-4,4),ease:"sine.inout",duration:3000, delay:Phaser.Math.Between(0,1000)},
+            {x: x-Phaser.Math.Between(0,4),y:y+Phaser.Math.Between(-4,4),ease:"sine.inout",duration:3000, delay:Phaser.Math.Between(0,1000)},
+        ]});
+    }
+
     create(){
         const background = this.add.rectangle(0, 0, 2000, 2000, 0xA2EEEB);
         const logo = this.add.text(400, 100, "Getting Old", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:100,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
         const start = this.add.text(400, 250, "Begin living", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5).setInteractive();
         const inventory = this.add.text(400, 300, "View your memories", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
+        const credits = this.add.text(400, 350, "Credits", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
+        console.log(Phaser.Math.Between(0, 1000));
+        this.idleMotionTween(logo, 400, 100);
+        this.idleMotionTween(start, 400, 250);
+        this.idleMotionTween(inventory, 400, 300);
+        this.idleMotionTween(credits, 400, 350);
         start.on("pointerdown", ()=>{
             this.scene.start("transition1");
-        })
+        });
     }
 }
 class Transition1 extends Phaser.Scene{
