@@ -40,13 +40,28 @@ class Menu extends Phaser.Scene{
             targets: object,
             repeat: -1,
             tweens:[
-            {x: x+Phaser.Math.Between(0,4),y:y+Phaser.Math.Between(-4,4),ease:"sine.inout",duration:3000, delay:Phaser.Math.Between(0,1000)},
-            {x: x-Phaser.Math.Between(0,4),y:y+Phaser.Math.Between(-4,4),ease:"sine.inout",duration:3000, delay:Phaser.Math.Between(0,1000)},
+            {x: x+Phaser.Math.Between(0,4),y:y+Phaser.Math.Between(-4,4),ease:"sine.inout",duration:3000, delay:Phaser.Math.Between(0,1000), yoyo: true},
+            {x: x-Phaser.Math.Between(0,4),y:y+Phaser.Math.Between(-4,4),ease:"sine.inout",duration:3000, delay:Phaser.Math.Between(0,1000), yoyo:true},
         ]});
     }
 
+    bounceTween(object, x, y){
+        ;
+    }
     create(){
-        const background = this.add.rectangle(0, 0, 2000, 2000, 0xA2EEEB);
+        this.add.rectangle(0, 0, 2000, 2000, 0xA2EEEB);
+        // example objects
+        let recPosX = Phaser.Math.Between(100,700);
+        let recPosY = Phaser.Math.Between(100,700);
+        this.screensaver= this.add.rectangle(recPosX, recPosY, 200, 200, 0x000000);
+        this.physics.add.existing(this.screensaver);
+        this.screensaver.body.setGravity(0, 0).setBounce(1).setCollideWorldBounds(true).setVelocity(200);
+        let circlePosX = Phaser.Math.Between(100,700);
+        let circlePosY = Phaser.Math.Between(100,700);
+        this.ballin=this.add.circle(circlePosX,circlePosY, 100, 0xffffff);
+        this.physics.add.existing(this.ballin);
+        this.ballin.body.setCircle(100).setGravity(0, 100).setBounce(1).setCollideWorldBounds(true).setVelocity(-200, -100);
+        // text
         const logo = this.add.text(400, 100, "Getting Old", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:100,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
         const start = this.add.text(400, 250, "Begin living", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5).setInteractive();
         const inventory = this.add.text(400, 300, "View your memories", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
@@ -66,7 +81,7 @@ class Transition1 extends Phaser.Scene{
         super("transition1");
     }
     create(){
-        const background = this.add.rectangle(0, 0, 2000, 2000, 0xA2EEEB);
+        this.add.rectangle(0, 0, 2000, 2000, 0xA2EEEB);
         const par1 = this.add.text(400, 150, "You've come home from a busy day at school.\nYour parents are proud\nYou've finished your second year of school.", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
         const par2 = this.add.text(400, 300, "Now here you stand at home,\nTwo months of summer break!\nWith a long time to explore limitless possibilities.", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
         const par3 = this.add.text(400, 400, "sample button here", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
@@ -100,6 +115,7 @@ const config = {
     width: 800,
     height: 600,
     backgroundColor: '#FFC0CB',
+    physics:{default: 'arcade', gravity:1,},
     parent: 'phaser-example',
     // scene: [Intro, Menu, Victory]
     scene: [Menu, Transition1, Victory]
