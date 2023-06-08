@@ -44,10 +44,6 @@ class Menu extends Phaser.Scene{
             {x: x-Phaser.Math.Between(0,4),y:y+Phaser.Math.Between(-4,4),ease:"sine.inout",duration:3000, delay:Phaser.Math.Between(0,1000), yoyo:true},
         ]});
     }
-
-    bounceTween(object, x, y){
-        ;
-    }
     create(){
         this.add.rectangle(0, 0, 2000, 2000, 0xA2EEEB);
         // example objects
@@ -80,11 +76,40 @@ class Transition1 extends Phaser.Scene{
     constructor(){
         super("transition1");
     }
+    fadeInTween(object){
+        this.tweens.add({
+            targets: object,
+            alpha: { from: 0, to: 1 },
+            ease: 'Sine.InOut',
+            duration: 1000,
+            // repeat: -1,
+            // yoyo: true
+        });
+    }
     create(){
+        this.counter = 0;
         this.add.rectangle(0, 0, 2000, 2000, 0xA2EEEB);
         const par1 = this.add.text(400, 150, "You've come home from a busy day at school.\nYour parents are proud\nYou've finished your second year of school.", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
+        this.fadeInTween(par1);
         const par2 = this.add.text(400, 300, "Now here you stand at home,\nTwo months of summer break!\nWith a long time to explore limitless possibilities.", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
+        // this.fadeInTween(par2);
         const par3 = this.add.text(400, 400, "sample button here", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
+        // this.fadeInTween(par3);
+        par1.setAlpha(0);
+        par2.setAlpha(0);
+        par3.setAlpha(0);
+        this.input.on("pointerdown", ()=>{
+            switch(this.counter){
+                case 0:
+                    this.fadeInTween(par2);
+                    this.counter++;
+                    break;
+                case 1:
+                    this.fadeInTween(par3);
+                    this.counter++;
+                    break;
+            }
+        })
     }
 }
 
