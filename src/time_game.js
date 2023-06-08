@@ -22,7 +22,7 @@ class Intro extends Phaser.Scene
         let bgMusic = this.sound.add('bgMusic', { loop: true });
         bgMusic.play();
         console.log(this)
-        this.player = (new Player(this, 400, 300, 'playerImage'));
+        this.player = (new Player(this, 400, 300, 'playerImage', {speed:300, items:[]}));
         // this.add.sprite(400, 300, 'playerImage');
         // console.log(Phaser.GameObjects.Sprite)
         // this.player = this.add.rectangle(400, 300, 50, 50, 0x00ff00).setDepth(1);
@@ -49,8 +49,6 @@ class Intro extends Phaser.Scene
         //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
         //     });
             
-        this.cursors = this.input.keyboard.createCursorKeys();
-        console.log(this.cursors);
         this.physics.add.collider(this.player, worldLayer);
 
         this.camFocusX = this.player.x;
@@ -67,76 +65,80 @@ class Intro extends Phaser.Scene
         this.timerDisplay = this.add.text(400, 30, "Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s", {font: "40px Arial", fill: "#FFFFFF"});
         this.timerDisplay.setOrigin(0.5, 0.5).setScrollFactor(0);
 
-        this.add.text(400, this.player.y-50, "arrow keys to move, \nspace while touching an item to pick it up, \nshift to open inventory")
-        
-    }
+        this.add.text(400, this.player.y-50, "arrows to move, \ninteract while touching an item to pick it up, \ntap inventory to open inventory")
+        this.leftArrow = this.add.text(50, 500, "<", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
+        this.rightArrow = this.add.text(100, 500, ">", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
+        this.upArrow = this.add.text(75, 475,  "^", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
+        this.downArrow = this.add.text(75, 525, "v", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
+        this.inventoryButton = this.add.text(20, 20, "Inventory", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
+        this.interactButton = this.add.text(600, 500, "Interact", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
+        this.delta = 0;
+        this.moving = {
+            left: false,
+            right: false,
+            up: false,
+            down: false,
+        };
+        //move player left when clicked
+        this.leftArrow.setInteractive({useHandCursor: true});
+        this.leftArrow.on('pointerdown', () => {
+            this.moving.left = true;
+        })
+        .on('pointerout', () => {
+            this.moving.left = false;
+        })
+        .on('pointerup', () => {
+            this.moving.left = false;
+        });
+        this.rightArrow.setInteractive({useHandCursor: true});
+        this.rightArrow.on('pointerdown', () => {
+            this.moving.right = true;
+        })
+        .on('pointerout', () => {
+            this.moving.right = false;
+        })
+        .on('pointerup', () => {
+            this.moving.right = false;
+        });
+        this.upArrow.setInteractive({useHandCursor: true});
+        this.upArrow.on('pointerdown', () => {
+            this.moving.up = true;
+        })
+        .on('pointerout', () => {
+            this.moving.up = false;
+        })
+        .on('pointerup', () => {
+            this.moving.up = false;
+        });
+        this.downArrow.setInteractive({useHandCursor: true});
+        this.downArrow.on('pointerdown', () => {
+            this.moving.down = true;
+        })
+        .on('pointerout', () => {
+            this.moving.down = false;
+        })
+        .on('pointerup', () => {
+            this.moving.down = false;
+        });
 
-    update(time, delta) {
-        if (!this.reset) {
-            this.sceneDuration = this.sys.game.loop.time - this.startTime;
-        }
-        this.timerDisplay.setText("Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s");
-        // Stop any previous movement from the last frame
-        this.player.body.velocity.x = 0;
-        this.player.body.velocity.y = 0;
-        this.cameras.main.centerOn(this.camFocusX, this.camFocusY);
-      
-        // Horizontal movement
-        if (this.cursors.left.isDown) {
-            this.player.flipX = true;
-            this.player.body.velocity.x = -100;
-            if (this.camFocusX > this.player.x - 50)
-                this.camFocusX = this.camFocusX - delta * 0.15;
-        } else if (this.cursors.right.isDown) {
-            this.player.flipX = false;
-            this.player.body.velocity.x = 100;
-            if (this.camFocusX < this.player.x + 50)
-                this.camFocusX = this.camFocusX + delta * 0.15;
-        }
-      
-        // Vertical movement
-        if (this.cursors.up.isDown) {
-            this.player.body.velocity.y = -100;
-            if (this.camFocusY > this.player.y - 50)
-                this.camFocusY = this.camFocusY - delta * 0.15;
-        } else if (this.cursors.down.isDown) {
-            this.player.body.velocity.y = 100;
-            if (this.camFocusY < this.player.y + 50) {
-                this.camFocusY = this.camFocusY + delta * 0.15;
-            }
-        }
+        this.inventoryButton.setInteractive({useHandCursor: true});
+        this.inventoryButton.on('pointerdown', () => {
+            let plinkNoise = this.sound.add('plink', { loop: false });
+            plinkNoise.play();
+            this.scene.pause('intro');
+            this.scene.launch('inventory', {items:this.player.items});
+        });
 
-        if (!(this.cursors.left.isDown || this.cursors.right.isDown || this.cursors.up.isDown || this.cursors.down.isDown)) {
-            if (this.camFocusX > this.player.x+5) {
-                this.camFocusX = this.camFocusX - delta * 0.3;
-            }
-            else if (this.camFocusX < this.player.x-5) {
-                this.camFocusX = this.camFocusX + delta * 0.3;
-            }
-            else {
-                this.camFocusX = this.player.x;
-            }
-            if (this.camFocusY > this.player.y+5) {
-                this.camFocusY = this.camFocusY - delta * 0.3;
-            } 
-            else if (this.camFocusY < this.player.y-5) {
-                this.camFocusY = this.camFocusY + delta * 0.3;
-            }
-            else {
-                this.camFocusY = this.player.y;
-            }
-            // this.camAnimOffset = Math.max(this.camAnimOffset - delta * 0.1, 0)
-        }
-
-        if (this.cursors.space.isDown) {
-            console.log('space pressed');
+        this.interactButton.setInteractive({useHandCursor: true});
+        this.interactButton.on('pointerdown', () => {
             this.items.forEach(item => {
                 this.physics.overlap(this.player.body, item.body, (player, itemBody) =>
                 {   
                     this.player.gainItem({
                         name:item.name, 
                         displayName:item.displayName,
-                        imageKey:item.imageKey
+                        imageKey:item.imageKey,
+                        description:"hello"
                     });
                     item.destroy();
                     console.log("over")
@@ -144,12 +146,63 @@ class Intro extends Phaser.Scene
                     plinkNoise.play();
                 });
             });
+        });
+    }    
+
+    update(time, delta) {
+        this.delta = delta;
+        this.sceneDuration = this.sys.game.loop.time - this.startTime;
+        this.timerDisplay.setText("Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s");
+        // Stop any previous movement from the last frame
+        this.player.body.velocity.x = 0;
+        this.player.body.velocity.y = 0;
+        this.cameras.main.centerOn(this.camFocusX, this.camFocusY);
+      
+        // Horizontal movement
+        if (this.moving.left) {
+            this.player.flipX = true;
+            this.player.body.velocity.x = -this.player.speed;
+            if (this.camFocusX > this.player.x - this.player.speed/2)
+                this.camFocusX = this.camFocusX - delta * this.player.speed/667;
+        } else if (this.moving.right) {
+            this.player.flipX = false;
+            this.player.body.velocity.x = this.player.speed;
+            if (this.camFocusX < this.player.x + this.player.speed/2)
+                this.camFocusX = this.camFocusX + delta * this.player.speed/667;
         }
-        if (this.cursors.shift.isDown) {
-            let plinkNoise = this.sound.add('plink', { loop: false });
-            plinkNoise.play();
-            this.scene.pause('intro');
-            this.scene.launch('inventory', {items:this.player.items});
+      
+        // Vertical movement
+        if (this.moving.up) {
+            this.player.body.velocity.y = -this.player.speed;
+            if (this.camFocusY > this.player.y - this.player.speed/2)
+                this.camFocusY = this.camFocusY - delta * this.player.speed/667;
+        } else if (this.moving.down) {
+            this.player.body.velocity.y = this.player.speed;
+            if (this.camFocusY < this.player.y + this.player.speed/2) {
+                this.camFocusY = this.camFocusY + delta * this.player.speed/667;
+            }
+        }
+
+        if (!(this.moving.left || this.moving.right || this.moving.up || this.moving.down)) {
+            if (this.camFocusX > this.player.x+this.player.speed/20) {
+                this.camFocusX = this.camFocusX - delta * this.player.speed/333;
+            }
+            else if (this.camFocusX < this.player.x-this.player.speed/20) {
+                this.camFocusX = this.camFocusX + delta * this.player.speed/333;
+            }
+            else {
+                this.camFocusX = this.player.x;
+            }
+            if (this.camFocusY > this.player.y+this.player.speed/20) {
+                this.camFocusY = this.camFocusY - delta * this.player.speed/333;
+            } 
+            else if (this.camFocusY < this.player.y-this.player.speed/20) {
+                this.camFocusY = this.camFocusY + delta * this.player.speed/333;
+            }
+            else {
+                this.camFocusY = this.player.y;
+            }
+            // this.camAnimOffset = Math.max(this.camAnimOffset - delta * 0.1, 0)
         }
       
       }
@@ -173,9 +226,10 @@ class Entity extends Phaser.GameObjects.Sprite
 
 class Player extends Entity
 {
-    constructor(scene, x, y, name, items) {
+    constructor(scene, x, y, name, config) {
         super(scene, x, y, 'playerImage', name, {scale:0.25, depth:2, origin:0.5});
-        this.items = items || [];
+        this.items = config.items || [];
+        this.speed = config.speed || 100;
     }
 
     gainItem(item) {
@@ -197,7 +251,10 @@ const config = {
     width: 800,
     height: 600,
     backgroundColor: '#257098',
-    parent: 'phaser-example',
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+    },
     physics: {
         default: "arcade",
         arcade: {
