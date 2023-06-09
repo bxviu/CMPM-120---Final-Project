@@ -97,8 +97,6 @@ class Transition1 extends Phaser.Scene{
             alpha: { from: 0, to: 1 },
             ease: 'Sine.InOut',
             duration: 1000,
-            // repeat: -1,
-            // yoyo: true
         });
     }
     hoverInteract(text){
@@ -115,36 +113,39 @@ class Transition1 extends Phaser.Scene{
         this.counter = 0;
         this.add.rectangle(0, 0, 2000, 2000, 0xA2EEEB);
         const par1 = this.add.text(400, 150, "You've come home from a busy day at school.\nYour parents are proud\nYou've finished your second year of school.", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
-        this.fadeInTween(par1);
         const par2 = this.add.text(400, 300, "Now here you stand at home,\nTwo months of summer break!\nWith a long time to explore limitless possibilities.", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
-        // this.fadeInTween(par2);
         const par3 = this.add.text(400, 400, "sample button here", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
-        // this.fadeInTween(par3);
         par1.setAlpha(0);
         par2.setAlpha(0);
         par3.setAlpha(0);
         par3.setInteractive();
-        this.ready = false;
-        this.input.on("pointerdown", ()=>{
-            switch(this.counter){
-                case 0:
-                    this.fadeInTween(par2);
-                    this.counter++;
-                    break;
-                case 1:
-                    this.fadeInTween(par3);
-                    this.counter++;
-                    this.ready = true;
-                    break;
-            }
-        })
+        this.tweens.add({
+            targets: par1,
+            alpha: { from: 0, to: 1 },
+            ease: 'Sine.InOut',
+            duration: 1000,
+        });
+        this.tweens.add({
+            delay: 1500,
+            targets: par2,
+            alpha: { from: 0, to: 1 },
+            ease: 'Sine.InOut',
+            duration: 1000,
+        });
+        this.tweens.add({
+            delay: 3000,
+            targets: par3,
+            alpha: { from: 0, to: 1 },
+            ease: 'Sine.InOut',
+            duration: 1000,
+        });
         this.hoverInteract(par3);
         this.add.rectangle(675, 500, 50, 100, 0xffffff);
         this.add.text(625, 450, "placeholder for walking sprite animation",{align:"center",color:"#000000",wordWrap:{width:50}});
+
+        // note: it is possible for people to skip the cutscene because of this, might change in the future
         par3.on("pointerdown",()=>{
-            if(this.ready == true){
-                this.scene.start('victory');
-            }
+            this.scene.start('victory');
         })
     }
 }
