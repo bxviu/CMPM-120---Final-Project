@@ -3,6 +3,7 @@
         "displayName": "shortnameA",
         "fullName": "more detailed name for bow",
         "description": "A placeholder description for placeholder bow. testtest",
+        "imageKey": "item1",
         "coordinates":
             {
                 "x": 200,
@@ -13,12 +14,22 @@
         "displayName": "shortnameB",
         "fullName": "more detailed name for arrow",
         "description": "A placeholder description for placeholder arrow. testtest",
+        "imageKey": "item2",
         "coordinates":
             {
                 "x": 300,
                 "y": 400
             }
+    },
+    "oaktree": {
+        "displayName": "Tree",
+        "fullName": "Oak Tree Near my House",
+        "description": "Wow this tree grew up a lot since I left a seed for it here around 20 years ago. I did not think it would grow this big!",
+        "imageKey": "tree",
+        "coordinates":
+            {
+                "x": 1421,
+                "y": 630
+            }
     }
-
-
 }

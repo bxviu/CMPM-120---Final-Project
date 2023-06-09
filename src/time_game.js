@@ -29,21 +29,34 @@ class Intro extends Phaser.Scene
         this.load.path = './assets/sounds/';
         this.load.audio('bgMusic', "miamiSong.wav");
         this.load.audio('plink', "plink.mp3")
+
     }
     
     create ()
     {   
-        this.test = null;
+        this.itemInfo = null;
+        this.items = [];
+
         fetch("./data/itemInfo.json").then(
             (response) => response.json()
         ).then(
             (json) => {
                 console.log(json);
-                this.test = json;
-                console.log(this.test);
+                this.itemInfo = json;
+                // console.log(this.itemInfo["items"]["");
+                for (const key in this.itemInfo){
+                    console.log(`${key} : ${this.itemInfo[key]["displayName"]}`)
+                    let currentItem = this.itemInfo[key];
+                    this.items.push(new Item(this, currentItem["coordinates"]["x"], currentItem["coordinates"]["y"], key, currentItem["imageKey"], {
+                            displayName:currentItem["displayName"], 
+                            fullName:currentItem["fullName"], 
+                            description:currentItem["description"]
+                        }));
+                }
             }
         );
         
+
 
         let bgMusic = this.sound.add('bgMusic', { loop: true });
         bgMusic.play();
@@ -82,9 +95,9 @@ class Intro extends Phaser.Scene
         // this.cameras.main.setZoom();
         // this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
-        this.items = [];
-        this.items.push(new Item(this, 20, 400, 'bow', 'item1', {displayName:'Placeholder-Bow'}));
-        this.items.push(new Item(this, 300, 600, 'arrow', 'item2', {displayName:'Placeholder-Arrow'}));
+        // this.items = [];
+        // this.items.push(new Item(this, 20, 400, 'bow', 'item1', {displayName:'Placeholder-Bow'}));
+        // this.items.push(new Item(this, 300, 600, 'arrow', 'item2', {displayName:'Placeholder-Arrow'}));
 
         this.sceneDuration = 0;
         this.timer = 0;
@@ -220,14 +233,16 @@ class Intro extends Phaser.Scene
         //https://rexrainbow.github.io/phaser3-rex-notes/docs/site/virtualjoystick/
         this.timerDisplay = this.add.text(400, 30, "Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s", {font: "40px Arial", fill: "#FFFFFF"});
         this.timerDisplay.setOrigin(0.5, 0.5).setScrollFactor(0);
+        let { width, height } = this.sys.game.canvas;
 
         this.add.text(400, this.player.y-50, "arrows to move, \ninteract while touching an item to pick it up, \ntap inventory to open inventory")
-        this.leftArrow = this.add.image(50, 500, "movementArrow").setScrollFactor(0).setScale(1).setOrigin(0.5).setRotation(-Math.PI/2);
-        this.rightArrow = this.add.image(150, 500, "movementArrow").setScrollFactor(0).setScale(1).setOrigin(0.5).setRotation(Math.PI/2);
-        this.upArrow = this.add.image(100, 450, "movementArrow").setScrollFactor(0).setScale(1).setOrigin(0.5);
-        this.downArrow = this.add.image(100, 550, "movementArrow").setScrollFactor(0).setScale(1).setOrigin(0.5).setRotation(Math.PI);
+
+        this.leftArrow = this.add.image(50, height-100, "movementArrow").setScrollFactor(0).setScale(1).setOrigin(0.5).setRotation(-Math.PI/2);
+        this.rightArrow = this.add.image(150, height-100, "movementArrow").setScrollFactor(0).setScale(1).setOrigin(0.5).setRotation(Math.PI/2);
+        this.upArrow = this.add.image(100, height-150, "movementArrow").setScrollFactor(0).setScale(1).setOrigin(0.5);
+        this.downArrow = this.add.image(100, height-50, "movementArrow").setScrollFactor(0).setScale(1).setOrigin(0.5).setRotation(Math.PI);
         this.inventoryButton = this.add.image(100, 75, "inventoryButton").setScrollFactor(0).setScale(2).setOrigin(0.5);
-        this.interactButton = this.add.image(710, 500, "interactButton").setScrollFactor(0).setScale(2).setOrigin(0.5);
+        this.interactButton = this.add.image(width-90, height-100, "interactButton").setScrollFactor(0).setScale(2).setOrigin(0.5);
 
         let plinkNoise = this.sound.add('plink', { loop: false });
 
@@ -241,18 +256,19 @@ class Intro extends Phaser.Scene
         this.interactButton.setInteractive({useHandCursor: true});
         this.interactButton.on('pointerdown', () => {
             this.items.forEach(item => {
-                this.physics.overlap(this.player.body, item.body, (player, itemBody) =>
-                {   
-                    this.player.gainItem({
-                        name:item.name, 
-                        displayName:item.displayName,
-                        imageKey:item.imageKey,
-                        description:"hello"
+                if (!this.player.inInventory(item)) {
+                    this.physics.overlap(this.player.body, item.body, (player, itemBody) =>
+                    {   
+                        this.player.gainItem({
+                            name:item.name, 
+                            fullName:item.fullName,
+                            displayName:item.displayName,
+                            imageKey:item.imageKey,
+                            description:item.description
+                        });
+                        plinkNoise.play();
                     });
-                    item.destroy();
-                    console.log("over")
-                    plinkNoise.play();
-                });
+                }
             });
         });
     }
@@ -323,13 +339,25 @@ class Player extends Entity
         this.items.push(item);
     }
 
+    inInventory(checkItem) {
+        let bruh = false;
+        this.items.forEach(item => {
+            if (item.name == checkItem.name)
+                bruh = true;
+        });
+        return bruh;
+    }
+
 }
 
 class Item extends Entity
 {
     constructor(scene, x, y, name, image, config) {
         super(scene, x, y, image, name, config || {scale:0.25, depth:1, origin:0.5});
+        this.description = config.description || "No description";
+        this.fullName = config.fullName || name;
     }
+    
 
 }
 
