@@ -139,6 +139,8 @@ class Transition1 extends Phaser.Scene{
             }
         })
         this.hoverInteract(par3);
+        this.add.rectangle(675, 500, 50, 100, 0xffffff);
+        this.add.text(625, 450, "placeholder for walking sprite animation",{align:"center",color:"#000000",wordWrap:{width:50}});
         par3.on("pointerdown",()=>{
             if(this.ready == true){
                 this.scene.start('victory');
@@ -176,7 +178,6 @@ const config = {
     backgroundColor: '#FFC0CB',
     physics:{default: 'arcade', gravity:1,},
     parent: 'phaser-example',
-    // scene: [Intro, Menu, Victory]
     scene: [Menu, Transition1, Victory, Intro]
 };
 
