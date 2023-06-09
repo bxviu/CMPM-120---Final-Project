@@ -1,0 +1,24 @@
+{
+    "bow": {
+        "displayName": "shortnameA",
+        "fullName": "more detailed name for bow",
+        "description": "A placeholder description for placeholder bow. testtest",
+        "coordinates":
+            {
+                "x": 200,
+                "y": 283
+            }
+    },
+    "arrow": {
+        "displayName": "shortnameB",
+        "fullName": "more detailed name for arrow",
+        "description": "A placeholder description for placeholder arrow. testtest",
+        "coordinates":
+            {
+                "x": 300,
+                "y": 400
+            }
+    }
+
+
+}

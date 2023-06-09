@@ -5,34 +5,59 @@ class Intro extends Phaser.Scene
     }
 
     preload() {
-        this.load.path = './assets/';
-        this.load.image("tiles", "kenney_tiny-town/Tilemap/tilemap.png");
-        this.load.tilemapTiledJSON("map", "test.tmj");
+        this.load.path = './data/';
+        this.load.tilemapTiledJSON("map", "rpgtilemap.tmj");
+
+        this.load.path = './assets/tilemap/';
+        this.load.image("tiles", "First Asset pack.png");
+        // this.load.image("tiles", "kenney_tiny-town/Tilemap/tilemap.png");
+        // this.load.tilemapTiledJSON("map", "test.tmj");
         this.load.path = './assets/images/';
-        this.load.image('playerImage', 'placeholder3.png');
+        // this.load.image('playerImage', 'placeholder3.png');
         this.load.image('item1', 'placeholder7-bow.png');
         this.load.image('item2', 'placeholder6-arrow.png');
+        this.load.image('movementArrow', 'movementArrow.png');
+        this.load.image('interactButton', 'interactButton.png');
+        this.load.image('inventoryButton', 'inventoryButton.png');
+        
+        this.load.path = './assets/images/character/';
+        this.load.spritesheet('playerRight', 'ACharRight.png', { frameWidth: 13, frameHeight: 18 });
+        // this.load.spritesheet('player', 'character.png', { frameWidth: 13, frameHeight: 19 });
+        this.load.spritesheet('playerUp', 'ACharUp.png', { frameWidth: 14, frameHeight: 19 });
+        this.load.spritesheet('playerDown', 'ACharDown.png', { frameWidth: 14, frameHeight: 19 });
+
         this.load.path = './assets/sounds/';
         this.load.audio('bgMusic', "miamiSong.wav");
         this.load.audio('plink', "plink.mp3")
     }
     
     create ()
-    {
+    {   
+        this.test = null;
+        fetch("./data/itemInfo.json").then(
+            (response) => response.json()
+        ).then(
+            (json) => {
+                console.log(json);
+                this.test = json;
+                console.log(this.test);
+            }
+        );
+        
+
         let bgMusic = this.sound.add('bgMusic', { loop: true });
         bgMusic.play();
         console.log(this)
-        this.player = (new Player(this, 400, 300, 'playerImage', {speed:300, items:[]}));
-        // this.add.sprite(400, 300, 'playerImage');
+        this.player = (new Player(this, 400, 300, 'InputName', {speed:300, items:[]}));
+
         // console.log(Phaser.GameObjects.Sprite)
-        // this.player = this.add.rectangle(400, 300, 50, 50, 0x00ff00).setDepth(1);
-        // this.physics.add.existing(this.player);
-        console.log(this.player);
+
+        // console.log(this.player);
         const map = this.make.tilemap({ key: "map" });
 
         // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
         // Phaser's cache (i.e. the name you used in preload)
-        const tileset = map.addTilesetImage("tilemap", "tiles");
+        const tileset = map.addTilesetImage("rpgtileset", "tiles");
 
         // Parameters: layer name (or index) from Tiled, tileset, x, y
         const belowLayer = map.createLayer("below", tileset, 0, 0);
@@ -53,6 +78,9 @@ class Intro extends Phaser.Scene
 
         this.camFocusX = this.player.x;
         this.camFocusY = this.player.y;
+        // this.cameras.main.startFollow(this.player);
+        // this.cameras.main.setZoom();
+        // this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
         this.items = [];
         this.items.push(new Item(this, 20, 400, 'bow', 'item1', {displayName:'Placeholder-Bow'}));
@@ -62,16 +90,7 @@ class Intro extends Phaser.Scene
         this.timer = 0;
         this.startTime = 0;
         this.totaltime = 90;
-        this.timerDisplay = this.add.text(400, 30, "Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s", {font: "40px Arial", fill: "#FFFFFF"});
-        this.timerDisplay.setOrigin(0.5, 0.5).setScrollFactor(0);
-
-        this.add.text(400, this.player.y-50, "arrows to move, \ninteract while touching an item to pick it up, \ntap inventory to open inventory")
-        this.leftArrow = this.add.text(50, 500, "<", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
-        this.rightArrow = this.add.text(100, 500, ">", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
-        this.upArrow = this.add.text(75, 475,  "^", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
-        this.downArrow = this.add.text(75, 525, "v", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
-        this.inventoryButton = this.add.text(20, 20, "Inventory", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
-        this.interactButton = this.add.text(600, 500, "Interact", {font: "40px Arial", fill: "#FFEA00"}).setScrollFactor(0);
+        
         this.delta = 0;
         this.moving = {
             left: false,
@@ -79,74 +98,64 @@ class Intro extends Phaser.Scene
             up: false,
             down: false,
         };
+        this.makeUI();
+
         //move player left when clicked
         this.leftArrow.setInteractive({useHandCursor: true});
         this.leftArrow.on('pointerdown', () => {
             this.moving.left = true;
+            this.player.play("sideways");
         })
         .on('pointerout', () => {
             this.moving.left = false;
+            this.player.stopAnim();
         })
         .on('pointerup', () => {
             this.moving.left = false;
+            this.player.stopAnim();
         });
         this.rightArrow.setInteractive({useHandCursor: true});
         this.rightArrow.on('pointerdown', () => {
             this.moving.right = true;
+            this.player.play("sideways");
         })
         .on('pointerout', () => {
             this.moving.right = false;
+            this.player.stopAnim();
         })
         .on('pointerup', () => {
             this.moving.right = false;
+            this.player.stopAnim();
         });
         this.upArrow.setInteractive({useHandCursor: true});
         this.upArrow.on('pointerdown', () => {
             this.moving.up = true;
+            this.player.play("up");
+
         })
         .on('pointerout', () => {
             this.moving.up = false;
+            this.player.stopAnim();
         })
         .on('pointerup', () => {
             this.moving.up = false;
+            this.player.stopAnim();
         });
         this.downArrow.setInteractive({useHandCursor: true});
         this.downArrow.on('pointerdown', () => {
             this.moving.down = true;
+            this.player.play("down");
+
         })
         .on('pointerout', () => {
             this.moving.down = false;
+            this.player.stopAnim();
         })
         .on('pointerup', () => {
             this.moving.down = false;
+            this.player.stopAnim();
         });
 
-        this.inventoryButton.setInteractive({useHandCursor: true});
-        this.inventoryButton.on('pointerdown', () => {
-            let plinkNoise = this.sound.add('plink', { loop: false });
-            plinkNoise.play();
-            this.scene.pause('intro');
-            this.scene.launch('inventory', {items:this.player.items});
-        });
-
-        this.interactButton.setInteractive({useHandCursor: true});
-        this.interactButton.on('pointerdown', () => {
-            this.items.forEach(item => {
-                this.physics.overlap(this.player.body, item.body, (player, itemBody) =>
-                {   
-                    this.player.gainItem({
-                        name:item.name, 
-                        displayName:item.displayName,
-                        imageKey:item.imageKey,
-                        description:"hello"
-                    });
-                    item.destroy();
-                    console.log("over")
-                    let plinkNoise = this.sound.add('plink', { loop: false });
-                    plinkNoise.play();
-                });
-            });
-        });
     }    
 
     update(time, delta) {
@@ -205,7 +214,48 @@ class Intro extends Phaser.Scene
             // this.camAnimOffset = Math.max(this.camAnimOffset - delta * 0.1, 0)
         }
       
-      }
+    }
+
+    makeUI() {
+        //https://rexrainbow.github.io/phaser3-rex-notes/docs/site/virtualjoystick/
+        this.timerDisplay = this.add.text(400, 30, "Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s", {font: "40px Arial", fill: "#FFFFFF"});
+        this.timerDisplay.setOrigin(0.5, 0.5).setScrollFactor(0);
+
+        this.add.text(400, this.player.y-50, "arrows to move, \ninteract while touching an item to pick it up, \ntap inventory to open inventory")
+        this.leftArrow = this.add.image(50, 500, "movementArrow").setScrollFactor(0).setScale(1).setOrigin(0.5).setRotation(-Math.PI/2);
+        this.rightArrow = this.add.image(150, 500, "movementArrow").setScrollFactor(0).setScale(1).setOrigin(0.5).setRotation(Math.PI/2);
+        this.upArrow = this.add.image(100, 450, "movementArrow").setScrollFactor(0).setScale(1).setOrigin(0.5);
+        this.downArrow = this.add.image(100, 550, "movementArrow").setScrollFactor(0).setScale(1).setOrigin(0.5).setRotation(Math.PI);
+        this.inventoryButton = this.add.image(100, 75, "inventoryButton").setScrollFactor(0).setScale(2).setOrigin(0.5);
+        this.interactButton = this.add.image(710, 500, "interactButton").setScrollFactor(0).setScale(2).setOrigin(0.5);
+
+        let plinkNoise = this.sound.add('plink', { loop: false });
+
+        this.inventoryButton.setInteractive({useHandCursor: true});
+        this.inventoryButton.on('pointerdown', () => {
+            plinkNoise.play();
+            this.scene.pause('intro');
+            this.scene.launch('inventory', {items:this.player.items});
+        });
+
+        this.interactButton.setInteractive({useHandCursor: true});
+        this.interactButton.on('pointerdown', () => {
+            this.items.forEach(item => {
+                this.physics.overlap(this.player.body, item.body, (player, itemBody) =>
+                {   
+                    this.player.gainItem({
+                        name:item.name, 
+                        displayName:item.displayName,
+                        imageKey:item.imageKey,
+                        description:"hello"
+                    });
+                    item.destroy();
+                    console.log("over")
+                    plinkNoise.play();
+                });
+            });
+        });
+    }
 
 }
 
@@ -227,9 +277,46 @@ class Entity extends Phaser.GameObjects.Sprite
 class Player extends Entity
 {
     constructor(scene, x, y, name, config) {
-        super(scene, x, y, 'playerImage', name, {scale:0.25, depth:2, origin:0.5});
+        super(scene, x, y, 'playerRight', name, {scale:1, depth:2, origin:0.5});
+        this.createAnimations();
         this.items = config.items || [];
         this.speed = config.speed || 100;
+    }
+
+    createAnimations() {
+        this.anims.create({
+            key: 'sideways',
+            frames: this.anims.generateFrameNumbers("playerRight", { start: 0, end: 3 }),
+            delay: 0,
+            duration: null,
+            frameRate: 4,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'up',
+            frames: this.anims.generateFrameNumbers("playerUp", { start: 0, end: 3 }),
+            delay: 0,
+            duration: null,
+            frameRate: 4,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'down',
+            frames: this.anims.generateFrameNumbers("playerDown", { start: 0, end: 3 }),
+            delay: 0,
+            duration: null,
+            frameRate: 4,
+            repeat: -1,
+        });
+    }
+
+    stopAnim() {
+        if (this.anims.isPlaying) {
+            this.anims.restart();
+            this.anims.stop(null, true);
+        }
     }
 
     gainItem(item) {
