@@ -6,27 +6,25 @@ class Intro extends Phaser.Scene
 
     preload() {
         this.load.plugin('rexvirtualjoystickplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js', true);
-        this.load.plugin('rexlocalstoragedataplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexlocalstoragedataplugin.min.js', true);
-
+        
         this.load.path = './data/';
         this.load.tilemapTiledJSON("map", "Getting_Old_Tilemap_large_v1.1.1.json");
-        // this.load.tilemapTiledJSON("map", "rpgtilemap.tmj");
 
         this.load.path = './assets/tilemap/';
         this.load.image("tiles", "First Asset pack.png");
-        // this.load.image("tiles", "kenney_tiny-town/Tilemap/tilemap.png");
-        // this.load.tilemapTiledJSON("map", "test.tmj");
+
         this.load.path = './assets/images/';
-        // this.load.image('playerImage', 'placeholder3.png');
         this.load.image('item1', 'placeholder7-bow.png');
         this.load.image('item2', 'placeholder6-arrow.png');
         this.load.image('movementArrow', 'movementArrow.png');
+        this.load.image('joystickBase', 'joystickBase.png');
         this.load.image('interactButton', 'interactButton.png');
         this.load.image('inventoryButton', 'inventoryButton.png');
+        this.load.image('settingsButton', 'settingsButton.png');
+        this.load.image('box', 'box.png');
         
         this.load.path = './assets/images/character/';
         this.load.spritesheet('playerRight', 'ACharRight.png', { frameWidth: 13, frameHeight: 18 });
-        // this.load.spritesheet('player', 'character.png', { frameWidth: 13, frameHeight: 19 });
         this.load.spritesheet('playerUp', 'ACharUp.png', { frameWidth: 14, frameHeight: 19 });
         this.load.spritesheet('playerDown', 'ACharDown.png', { frameWidth: 14, frameHeight: 19 });
 
@@ -38,7 +36,6 @@ class Intro extends Phaser.Scene
     
     create ()
     {   
-        this.itemInfo = null;
         this.items = [];
         this.muteMusic = (localStorage.getItem("bgMute") == "true" ? true : false);;
 
@@ -46,18 +43,7 @@ class Intro extends Phaser.Scene
             (response) => response.json()
         ).then(
             (json) => {
-                console.log(json);
-                this.itemInfo = json;
-                // console.log(this.itemInfo["items"]["");
-                for (const key in this.itemInfo){
-                    console.log(`${key} : ${this.itemInfo[key]["displayName"]}`)
-                    let currentItem = this.itemInfo[key];
-                    this.items.push(new Item(this, currentItem["coordinates"]["x"], currentItem["coordinates"]["y"], key, currentItem["imageKey"], {
-                            displayName:currentItem["displayName"], 
-                            fullName:currentItem["fullName"], 
-                            description:currentItem["description"]
-                        }));
-                }
+                this.createItems(json);
             }
         );
         
@@ -66,10 +52,9 @@ class Intro extends Phaser.Scene
             this.bgMusic.play();
         }
         console.log(this)
+
         this.player = (new Player(this, 20, 145, 'InputName', {speed:100, items:[]}));
 
-
-        // console.log(this.player);
         const map = this.make.tilemap({ key: "map" });
 
         // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
@@ -77,9 +62,6 @@ class Intro extends Phaser.Scene
         const tileset = map.addTilesetImage("rpgtileset", "tiles");
 
         // Parameters: layer name (or index) from Tiled, tileset, x, y
-        // const belowLayer = map.createLayer("below", tileset, 0, 0);
-        // const worldLayer = map.createLayer("world", tileset, 0, 0);
-        // const aboveLayer = map.createLayer("above", tileset, 0, 0);
         // aboveLayer.setDepth(10);
         // console.log( tileset.getTileLayerNames());
         const ground = map.createLayer("Ground", tileset, 0, 0);
@@ -95,91 +77,38 @@ class Intro extends Phaser.Scene
 
         collision.setCollisionBetween(1, 999, true, 'Collision');
 
-        // worldLayer.setCollisionByProperty({ collides: true });
-        // worldLayer.setCollisionBetween(1, 999, true, 'world');
-        const debugGraphics = this.add.graphics().setAlpha(0.75);
-        collision.renderDebug(debugGraphics, {
-            tileColor: null, // Color of non-colliding tiles
-            collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-            faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
-            });
+        // const debugGraphics = this.add.graphics().setAlpha(0.75);
+        // collision.renderDebug(debugGraphics, {
+        //     tileColor: null, // Color of non-colliding tiles
+        //     collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+        //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+        //     });
 
         collision.forEachTile(function(tile, index, tileArray) {
             tile.setAlpha(0);
         })
             
         this.physics.add.collider(this.player, collision);
-        this.makeUI();
         this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-
-        this.camFocusX = this.player.x;
-        this.camFocusY = this.player.y;
-        this.camFocusPlayer = false;
-        console.log(this.cameras.main)
-        this.cameras.main.startFollow(this.player);
-        this.cameras.main.setZoom(3);
-        this.cameras.main.setLerp(0.1, 0.1);
-
-        this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-        this.onJoyStick = false;
-        this.joyStick.on('pointerdown', (pointer) => {this.onJoyStick = true;})
-        this.joyStick.on('pointerup', (pointer) => {this.onJoyStick = false;});
-
-        // allows player to click and drag to see the area around the player
-        this.initialPointerPosition = null;
-        this.input.on('pointerdown', function(pointer) {
-            console.log(this.onJoyStick)
-            // this.time.delayedCall(500, () => {
-                if (!this.onJoyStick) {
-                // if (!(this.moving.left || this.moving.right || this.moving.up || this.moving.down)){
-                    this.camFocusPlayer = false;
-                    // Store the initial pointer position
-                    this.initialPointerPosition = new Phaser.Math.Vector2(pointer.x, pointer.y);
-                    // console.log(this.initialPointerPosition)
-                    this.cameras.main.stopFollow();
-                }
-            // });
-        }, this);
-    
-        this.input.on('pointermove', function(pointer) {
-            if (this.initialPointerPosition) {
-                // Calculate the distance moved by the pointer
-                var deltaX = pointer.x - this.initialPointerPosition.x;
-                var deltaY = pointer.y - this.initialPointerPosition.y;
-    
-                // Move the camera accordingly
-                this.cameras.main.scrollX -= deltaX;
-                this.cameras.main.scrollY -= deltaY;
-                this.camFocusX = this.cameras.main.midPoint.x;
-                this.camFocusY = this.cameras.main.midPoint.y;
-    
-                // Update the initial pointer position
-                this.initialPointerPosition.set(pointer.x, pointer.y);
-            }
-        }, this);
-    
-        this.input.on('pointerup', function(pointer) {
-            // Reset the initial pointer position when the dragging ends
-            this.initialPointerPosition = null;
-        }, this);
+        
+        this.makeUI();
+        this.initializeCamera(map);
+        this.addMapDragging();
 
         this.sceneDuration = 0;
         this.timer = 0;
         this.startTime = 0;
         this.totaltime = 90;
-        
-        this.delta = 0;
+
         this.moving = {
             left: false,
             right: false,
             up: false,
             down: false,
         };
-
     }
     
     update(time, delta) {
-        this.delta = delta;
         this.sceneDuration = this.sys.game.loop.time - this.startTime;
         this.timerDisplay.setText("Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s");
         // Stop any previous movement from the last frame
@@ -248,36 +177,35 @@ class Intro extends Phaser.Scene
                 this.player.play("down");
         }
 
-        let reachedPlayerX = false;
-        let reachedPlayerY = false;
         if (this.camFocusPlayer) {
-            this.cameras.main.centerOn(this.camFocusX, this.camFocusY);
-            if (this.camFocusX > this.player.x+this.player.speed/20) {
-                this.camFocusX = this.camFocusX - delta * this.player.speed/333;
-            }
-            else if (this.camFocusX < this.player.x-this.player.speed/20) {
-                this.camFocusX = this.camFocusX + delta * this.player.speed/333;
-            }
-            else {
-                this.camFocusX = this.player.x;
-                reachedPlayerX = true;
-            }
-            if (this.camFocusY > this.player.y+this.player.speed/20) {
-                this.camFocusY = this.camFocusY - delta * this.player.speed/333;
-            } 
-            else if (this.camFocusY < this.player.y-this.player.speed/20) {
-                this.camFocusY = this.camFocusY + delta * this.player.speed/333;
-            }
-            else {
-                this.camFocusY = this.player.y;
-                reachedPlayerY = true;
-            }
-            if (reachedPlayerX && reachedPlayerY) {
-                this.cameras.main.startFollow(this.player);
-                this.cameras.main.setLerp(0.1, 0.1);
-            }
+            this.camGoToPlayer(delta);
         }
       
+    }
+
+    createItems(itemInfo) {
+        for (const key in itemInfo){
+            console.log(`${key} : ${itemInfo[key]["displayName"]}`)
+            let currentItem = itemInfo[key];
+            this.items.push(new Item(this, currentItem["coordinates"]["x"], currentItem["coordinates"]["y"], key, currentItem["imageKey"], {
+                    displayName:currentItem["displayName"], 
+                    fullName:currentItem["fullName"], 
+                    description:currentItem["description"],
+                    scale:0.05,
+                }));
+        }
+    }
+
+    initializeCamera(map) {
+        this.camFocusX = this.player.x;
+        this.camFocusY = this.player.y;
+        this.camFocusPlayer = false;
+
+        this.cameras.main.startFollow(this.player);
+        this.cameras.main.setZoom(3);
+        this.cameras.main.setLerp(0.1, 0.1);
+
+        this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     }
 
     makeUI() {
@@ -288,62 +216,61 @@ class Intro extends Phaser.Scene
 
         this.add.text(400, this.player.y-50, "arrows to move, \ninteract while touching an item to pick it up, \ntap inventory to open inventory")
 
-        // this.leftJoystick = this.rexUI.add.virtualJoystick({
-        //     x: 50,
-        //     y: height-100,
-        //     radius: 50,
-        //     base: this.add.circle(0, 0, 50, 0x888888).setAlpha(0.5),
-        //     thumb: this.add.circle(0, 0, 25, 0x888888),
-        //     dir: '8dir',
-        //     input: this.input
-        // })
         this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
             x: 315,
             y: 350,
-            radius: 50,
-            base: this.add.circle(0, 0, 50, 0x888888).setAlpha(0.5),
-            thumb: this.add.circle(0, 0, 25, 0x888888),
+            radius: 40,
+            base: this.add.image(0, 0, "joystickBase").setScale(1.2).setOrigin(0.5).setAlpha(0.5),
+            thumb: this.add.image(0, 0, "joystickBase").setScale(0.35).setOrigin(0.5).setAlpha(0.5).setRotation(-Math.PI/4),
             dir: '8dir',
-            // forceMin: 16,
-            // fixed: true,
-            // enable: true
         }); 
+        this.onButton = false;
+        this.joyStick.on('pointerdown', (pointer) => {this.onButton = true;})
+        this.joyStick.on('pointerup', (pointer) => {this.onButton = false;});
 
-        // this.leftArrow = this.add.image(290, 350, "movementArrow").setScrollFactor(0).setScale(0.5).setOrigin(0.5).setRotation(-Math.PI/2).setAlpha(0.5);
-        // this.rightArrow = this.add.image(340, 350, "movementArrow").setScrollFactor(0).setScale(0.5).setOrigin(0.5).setRotation(Math.PI/2).setAlpha(0.5);
-        // this.upArrow = this.add.image(315, 325, "movementArrow").setScrollFactor(0).setScale(0.5).setOrigin(0.5).setAlpha(0.5);
-        // this.downArrow = this.add.image(315, 375, "movementArrow").setScrollFactor(0).setScale(0.5).setOrigin(0.5).setRotation(Math.PI).setAlpha(0.5);
         this.inventoryButton = this.add.image(315, 240, "inventoryButton").setScrollFactor(0).setScale(0.75).setOrigin(0.5).setAlpha(0.5);
         this.interactButton = this.add.image(490, 350, "interactButton").setScrollFactor(0).setScale(0.75).setOrigin(0.5).setAlpha(0.5);
         //settings in top right corner
-        this.settingsButton = this.add.text(490, 240, "Mute").setScrollFactor(0).setScale(0.75).setOrigin(0.5);
-        this.settingsButton.setText(this.muteMusic ? "Unmute" : "Mute");
-
-        this.settingsButton.setInteractive({useHandCursor: true});
-        this.settingsButton.on('pointerdown', () => {
-            this.muteMusic = !this.muteMusic;
-            localStorage.setItem("bgMute", this.muteMusic);
-            if (this.muteMusic) {
-                this.settingsButton.setText("Unmute");
-                this.bgMusic.stop();
-            }
-            else {
-                this.settingsButton.setText("Mute");
-                this.bgMusic.play();
-            }
-        });
+        this.makeSettingsMenu();
 
         let plinkNoise = this.sound.add('plink', { loop: false });
 
         this.inventoryButton.setInteractive({useHandCursor: true});
         this.inventoryButton.on('pointerdown', () => {
+            this.tweens.add({
+                targets: this.inventoryButton,
+                scaleX: 0.65,
+                scaleY: 0.65,
+                duration: 100,
+                ease: 'Power2',
+                yoyo: true,
+                repeat: 0
+                });
             plinkNoise.play();
-            this.scene.pause('intro');
-            this.scene.launch('inventory', {items:this.player.items});
+            this.time.delayedCall(300, () => {
+                this.scene.pause('intro');
+                this.scene.launch('inventory', {items:this.player.items});
+            });
+        })
+        .on('pointerover', () => {
+            this.inventoryButton.setAlpha(1);
+        })
+        .on('pointerout', () => {
+            this.inventoryButton.setAlpha(0.5);
         });
 
         this.interactButton.setInteractive({useHandCursor: true});
         this.interactButton.on('pointerdown', () => {
+            // make button bigger and shrink down over 2 seconds 
+            this.tweens.add({
+                targets: this.interactButton,
+                scaleX: 0.65,
+                scaleY: 0.65,
+                duration: 100,
+                ease: 'Power2',
+                yoyo: true,
+                repeat: 0
+                });
             this.items.forEach(item => {
                 if (!this.player.inInventory(item)) {
                     this.physics.overlap(this.player.body, item.body, (player, itemBody) =>
@@ -359,9 +286,185 @@ class Intro extends Phaser.Scene
                     });
                 }
             });
+        })        
+        .on('pointerover', () => {
+            this.interactButton.setAlpha(1);
+        })
+        .on('pointerout', () => {
+            this.interactButton.setAlpha(0.5);
         });
     }
 
+    makeSettingsMenu() {
+        this.settingsMenu = this.add.container(560, 230).setScrollFactor(0);
+
+        let fullscreenButton = this.add.text(0, 0, "Fullscreen", {font: "10px Arial", fill: 0xFFFFFF, align: "center"}).setScrollFactor(0).setScale(0.75).setOrigin(0.5);
+        fullscreenButton.setScrollFactor(0).setScale(0.75).setOrigin(0.5)
+        .setInteractive({useHandCursor: true})
+        .on('pointerdown', () => {
+            this.onButton = true;
+            if (this.scale.isFullscreen) {
+                this.scale.stopFullscreen();
+                fullscreenButton.setText("Fullscreen");
+            }
+            else {
+                this.scale.startFullscreen();
+                fullscreenButton.setText("Exit\nFullscreen");
+            }
+            // fullscreenButton.setText(this.scale.isFullscreen ? "Exit Fullscreen" : "Fullscreen")
+            // need this to be delayed a bit or else the map will be dragged when you press the button
+            this.time.delayedCall(1, () => {
+                this.onButton = false;
+            });
+        });
+
+        let muteButton = this.add.text(0, -15, "Mute", {font: "10px Arial", fill: 0xFFFFFF}).setScrollFactor(0).setScale(0.75).setOrigin(0.5);
+        muteButton.setText(this.muteMusic ? "Unmute" : "Mute");
+
+        muteButton.setInteractive({useHandCursor: true});
+        muteButton.on('pointerdown', () => {
+            this.muteMusic = !this.muteMusic;
+            localStorage.setItem("bgMute", this.muteMusic);
+            if (this.muteMusic) {
+                muteButton.setText("Unmute");
+                this.bgMusic.stop();
+            }
+            else {
+                muteButton.setText("Mute");
+                this.bgMusic.play();
+            }
+        });
+
+        this.settingsMenuShowing = false;
+        let settingsButton = this.add.image(-40,-15, "settingsButton").setScrollFactor(0).setScale(0.25).setOrigin(0.5).setAlpha(0.75);
+        settingsButton.setInteractive({useHandCursor: true})
+        .on('pointerdown', () => {
+            // move menu to the top right corner
+            if (!this.settingsMenuShowing) {
+                this.tweens.add({
+                    targets: this.settingsMenu,
+                    x: 505,
+                    duration: 150,
+                    ease: 'Power2',
+                    })
+            }
+            else {
+                this.tweens.add({
+                    targets: this.settingsMenu,
+                    x: 560,
+                    duration: 150,
+                    ease: 'Power2',
+                    })
+            }
+            this.settingsMenuShowing = !this.settingsMenuShowing;
+        })
+        .on('pointerover', () => {
+            this.tweens.add({
+                targets: settingsButton,
+                angle: -180,
+                duration: 200,
+                ease: 'Power2',
+                alpha: 1
+            });
+        })
+        .on('pointerout', () => {
+            this.tweens.add({
+                targets: settingsButton,
+                angle: 0,
+                duration: 200,
+                ease: 'Power2',
+                alpha: 0.75
+            });
+        })
+
+        let background = this.make.nineslice({
+            x: 0,
+            y: 0,
+            key: 'box',
+
+            width: 50,
+            height: 56,
+            leftWidth: 5,
+            rightWidth: 5,
+            topHeight: 5,
+            bottomHeight: 5,
+        
+            origin: {x: 0.5, y: 0.5},
+        
+            add: true
+        });
+
+        this.settingsMenu.add(background);
+        this.settingsMenu.add([fullscreenButton,muteButton,settingsButton])
+    }
+
+    addMapDragging() {
+        // allows player to click and drag to see the area around the player
+        this.initialPointerPosition = null;
+        this.input.on('pointerdown', function(pointer) {
+            console.log(this.onButton)
+            if (!this.onButton) {
+                this.joyStick.setEnable(false);
+                this.camFocusPlayer = false;
+                // Store the initial pointer position
+                this.initialPointerPosition = new Phaser.Math.Vector2(pointer.x, pointer.y);
+                this.cameras.main.stopFollow();
+            }
+        }, this);
+    
+        this.input.on('pointermove', function(pointer) {
+            if (this.initialPointerPosition) {
+                // Calculate the distance moved by the pointer
+                var deltaX = pointer.x - this.initialPointerPosition.x;
+                var deltaY = pointer.y - this.initialPointerPosition.y;
+    
+                // Move the camera accordingly
+                this.cameras.main.scrollX -= deltaX;
+                this.cameras.main.scrollY -= deltaY;
+                this.camFocusX = this.cameras.main.midPoint.x;
+                this.camFocusY = this.cameras.main.midPoint.y;
+    
+                // Update the initial pointer position
+                this.initialPointerPosition.set(pointer.x, pointer.y);
+            }
+        }, this);
+    
+        this.input.on('pointerup', function(pointer) {
+            // Reset the initial pointer position when the dragging ends
+            this.initialPointerPosition = null;
+            this.joyStick.setEnable(true);
+        }, this);
+    }
+
+    camGoToPlayer(delta) {
+        let reachedPlayerX = false;
+        let reachedPlayerY = false;
+        this.cameras.main.centerOn(this.camFocusX, this.camFocusY);
+        if (this.camFocusX > this.player.x+this.player.speed/20) {
+            this.camFocusX = this.camFocusX - delta * this.player.speed/333;
+        }
+        else if (this.camFocusX < this.player.x-this.player.speed/20) {
+            this.camFocusX = this.camFocusX + delta * this.player.speed/333;
+        }
+        else {
+            this.camFocusX = this.player.x;
+            reachedPlayerX = true;
+        }
+        if (this.camFocusY > this.player.y+this.player.speed/20) {
+            this.camFocusY = this.camFocusY - delta * this.player.speed/333;
+        } 
+        else if (this.camFocusY < this.player.y-this.player.speed/20) {
+            this.camFocusY = this.camFocusY + delta * this.player.speed/333;
+        }
+        else {
+            this.camFocusY = this.player.y;
+            reachedPlayerY = true;
+        }
+        if (reachedPlayerX && reachedPlayerY) {
+            this.cameras.main.startFollow(this.player);
+            this.cameras.main.setLerp(0.1, 0.1);
+        }
+    }
 }
 
 class Entity extends Phaser.GameObjects.Sprite

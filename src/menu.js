@@ -87,7 +87,7 @@ class Menu extends Phaser.Scene {
             config.animateY = 0;
         }
         this.tweens.add({
-            targets: target,
+            targets: [...target],
             x: config.animateX,
             y: config.animateY,
             duration: 500,
@@ -129,6 +129,7 @@ class Inventory extends Menu {
         this.load.path = './assets/images/';
         this.load.image('item1', 'placeholder7-bow.png');
         this.load.image('item2', 'placeholder6-arrow.png');
+        this.load.image('box', 'box.png');
     }
     init(data) {
         console.log(data.items);
@@ -142,10 +143,10 @@ class Inventory extends Menu {
         this.nextScene = 'intro'
         // this.formatItems();
         // this.animateIn(500, box, "inventory", "intro", {resume: true, animateX: 400, animateY: -400});
-        this.menu = this.makeMenu();
+        this.makeMenu();
         this.wholeContainer.setDepth(10);
         this.tweens.add({
-            targets: [this.menu,this.wholeContainer,],
+            targets: [this.gridTable,this.wholeContainer,],
             y: 300,
             duration: 500,
             ease: 'Cubic.out',
@@ -154,17 +155,63 @@ class Inventory extends Menu {
     }
 
     makeMenu() {
-        let backBox = this.add.rexRoundRectangle(-150,0,350,450,10,COLOR_LIGHT,1);//250, 300, 350, 450, 10, COLOR_LIGHT, 1);
-        backBox.setOrigin(0.5).setDepth(10);
-        let descriptionBox = this.add.rexRoundRectangle(-150,130,320,160,10,COLOR_PRIMARY,1);//250, 430, 320, 160, 10, COLOR_PRIMARY, 1);
+        let backBox = this.make.nineslice({
+            x: -150,
+            y: 0,
+            key: 'box',
+
+            width: 450,
+            height: 350,
+            leftWidth: 5,
+            rightWidth: 5,
+            topHeight: 5,
+            bottomHeight: 5,
+        
+            origin: {x: 0.5, y: 0.5},
+        
+            add: true
+        });//this.add.rexRoundRectangle(-150,0,350,450,10,COLOR_LIGHT,1);//250, 300, 350, 450, 10, COLOR_LIGHT, 1);
+        backBox.setOrigin(0.5).setDepth(10).setRotation(Math.PI/2).setTint(0xd1a192);
+        let descriptionBox = this.make.nineslice({
+            x: -150,
+            y: 130,
+            key: 'box',
+
+            width: 320,
+            height: 160,
+            leftWidth: 5,
+            rightWidth: 5,
+            topHeight: 5,
+            bottomHeight: 5,
+        
+            origin: {x: 0.5, y: 0.5},
+        
+            add: true
+        });//this.add.rexRoundRectangle(-150,130,320,160,10,COLOR_PRIMARY,1);//250, 430, 320, 160, 10, COLOR_PRIMARY, 1);
         descriptionBox.setOrigin(0.5).setDepth(11);
-        let descriptionText = this.add.text(-150,130,"").setOrigin(0.5).setDepth(12);//250, 430, '').setDepth(12).setOrigin(0.5);
+        let descriptionText = this.add.text(-150,130,"", {wordWrap: { width: 320, useAdvancedWrap: true}}).setOrigin(0.5).setDepth(12);//250, 430, '').setDepth(12).setOrigin(0.5);
         let itemImage = null;
         // this.wholeContainer.add([backBox, descriptionBox, descriptionText]);
+        let slice = this.make.nineslice({
+            x: 0,
+            y: 0,
+            key: 'box',
 
+            width: 50,
+            height: 56,
+            leftWidth: 5,
+            rightWidth: 5,
+            topHeight: 5,
+            bottomHeight: 5,
+        
+            origin: {x: 0.5, y: 0.5},
+        
+            add: true
+        })
+        slice.setTint(0x785741);
 
         var scrollMode = 0; // 0:vertical, 1:horizontal
-        var gridTable = this.rexUI.add.gridTable({
+        this.gridTable = this.rexUI.add.gridTable({
             x: 400,
             y: -400,
             width: (scrollMode === 0) ? 700 : 420,
@@ -172,7 +219,7 @@ class Inventory extends Menu {
 
             scrollMode: scrollMode,
 
-            background: this.rexUI.add.roundRectangle(0, 0, 20, 10, 10, COLOR_PRIMARY),
+            background: slice,//this.rexUI.add.roundRectangle(0, 0, 20, 10, 10, COLOR_PRIMARY),
 
             table: {
                 cellWidth: (scrollMode === 0) ? undefined : 120,
@@ -260,8 +307,7 @@ class Inventory extends Menu {
             .layout()
         // .drawBounds(this.add.graphics(), 0xff0000);
 
-        this.print = this.add.text(0, 0, '');
-        gridTable
+        this.gridTable
             .on('cell.over', function (cellContainer, cellIndex, pointer) {
                 cellContainer.getElement('background')
                     .setStrokeStyle(2, COLOR_LIGHT)
@@ -269,10 +315,10 @@ class Inventory extends Menu {
                 if (itemImage) {
                     itemImage.destroy();
                 }
-                let imageKey = cellContainer.getElement('icon').texture.key;
+                let imageKey = this.gridTable.items[cellIndex].imageKey;
                 itemImage = this.add.image(250, 210, imageKey).setScale(0.5).setDepth(12).setOrigin(0.5);
-                console.log(cellContainer.data);
-                descriptionText.setText("item description");
+                descriptionText.setText(this.gridTable.items[cellIndex].description);
+
             }, this)
             .on('cell.out', function (cellContainer, cellIndex, pointer) {
                 cellContainer.getElement('background')
@@ -284,20 +330,17 @@ class Inventory extends Menu {
                 descriptionText.setText("");
             }, this)
             .on('cell.click', function (cellContainer, cellIndex, pointer) {
-                this.print.text += 'click ' + cellIndex + ': ' + cellContainer.text + '\n';
-          
                 var nextCellIndex = cellIndex + 1;
-                var nextItem = gridTable.items[nextCellIndex];
+                var nextItem = this.gridTable.items[nextCellIndex];
                 if (!nextItem) {
                     return;
                 }
                 nextItem.color = 0xffffff - nextItem.color;
-                gridTable.updateVisibleCell(nextCellIndex);
+                this.gridTable.updateVisibleCell(nextCellIndex);
           
             }, this)
 
         this.wholeContainer.add([backBox, descriptionBox, descriptionText]);
-        return gridTable;
     }
 
     getFooterSizer(scene, orientation) {
@@ -327,10 +370,10 @@ class Inventory extends Menu {
             .setInteractive()
             .on('pointerdown', function () {
                 console.log(`Pointer down ${text}`)
-                // menuLeave(this.wholeContainer, this.currentScene, this.nextScene, config);   
-                console.log(scene);
-                scene.scene.resume(scene.nextScene);
-                scene.scene.stop(scene.currentScene);                
+                scene.menuLeave([scene.wholeContainer,scene.gridTable], scene.currentScene, scene.nextScene, {resume:true, animateX:400, animateY:-400});   
+                // console.log(scene);
+                // scene.scene.resume(scene.nextScene);
+                // scene.scene.stop(scene.currentScene);                
 
             })
             .on('pointerover', function(){
