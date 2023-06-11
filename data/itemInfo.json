@@ -17,8 +17,30 @@
         "imageKey": "item2",
         "coordinates":
             {
-                "x": 300,
-                "y": 400
+                "x": 490,
+                "y": 217
+            }
+    },
+    "bruh": {
+        "displayName": "shortnameC",
+        "fullName": "more detailed name audauah",
+        "description": "A placeholder description asfor placeholder arrow. testtest",
+        "imageKey": "item2",
+        "coordinates":
+            {
+                "x": 522,
+                "y": 173
+            }
+    },
+    "arroro": {
+        "displayName": "shortnameD",
+        "fullName": "more detailed name for arroawdadawdaw",
+        "description": "A placeholder description for placeholder arrow. testtest",
+        "imageKey": "item2",
+        "coordinates":
+            {
+                "x": 275,
+                "y": 93
             }
     },
     "oaktree": {

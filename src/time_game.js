@@ -1,7 +1,20 @@
-class Intro extends Phaser.Scene
+class Gameplay extends Phaser.Scene
 {   
     constructor() {
-        super('intro')
+        super('gameplay')
+    }
+
+    init(data) {
+        this.timeLimit = data.limit || 16;
+        this.stats = data.stats || {
+            steps: 0,
+            totalItems: 0,
+            item1: 0,
+            item2: 0,
+            item3: 0,
+        };
+        this.playerItems = data.items || [];
+        this.level = data.level || 1;
     }
 
     preload() {
@@ -53,8 +66,8 @@ class Intro extends Phaser.Scene
         }
         console.log(this)
 
-        this.player = (new Player(this, 20, 145, 'InputName', {speed:100, items:[]}));
-
+        this.player = (new Player(this, 20, 145, 'InputName', {speed:50+(25*(3 - this.level)), items:this.playerItems}));
+        console.log(this.player.speed)
         const map = this.make.tilemap({ key: "map" });
 
         // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
@@ -62,20 +75,23 @@ class Intro extends Phaser.Scene
         const tileset = map.addTilesetImage("rpgtileset", "tiles");
 
         // Parameters: layer name (or index) from Tiled, tileset, x, y
-        // aboveLayer.setDepth(10);
         // console.log( tileset.getTileLayerNames());
         const ground = map.createLayer("Ground", tileset, 0, 0);
         const cliffs = map.createLayer("Cliffs", tileset, 0, 0);
         const cliffs2 = map.createLayer("Cliffs 2", tileset, 0, 0);
         const plants1 = map.createLayer("Plants", tileset, 0, 0);
-        const plants2 = map.createLayer("Plants 2", tileset, 0, 0);
+        const plants2 = map.createLayer("Plants 2", tileset, 0, 0).setDepth(3);
         const plants3 = map.createLayer("Plants 3", tileset, 0, 0);
-        const plants4 = map.createLayer("Plants 4", tileset, 0, 0);
-        const fences = map.createLayer("Fences", tileset, 0, 0);
+        const plants4 = map.createLayer("Plants 4", tileset, 0, 0).setDepth(3);
+        const fences = map.createLayer("Fences", tileset, 0, 0).setDepth(3);
         const buildings = map.createLayer("Buildings", tileset, 0, 0);
         const collision = map.createLayer("Collision", tileset, 0, 0);
 
         collision.setCollisionBetween(1, 999, true, 'Collision');
+
+        collision.forEachTile(function(tile, index, tileArray) {
+            tile.setAlpha(0);
+        });
 
         // const debugGraphics = this.add.graphics().setAlpha(0.75);
         // collision.renderDebug(debugGraphics, {
@@ -83,10 +99,6 @@ class Intro extends Phaser.Scene
         //     collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
         //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
         //     });
-
-        collision.forEachTile(function(tile, index, tileArray) {
-            tile.setAlpha(0);
-        })
             
         this.physics.add.collider(this.player, collision);
         this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
@@ -97,8 +109,7 @@ class Intro extends Phaser.Scene
 
         this.sceneDuration = 0;
         this.timer = 0;
-        this.startTime = 0;
-        this.totaltime = 90;
+        this.totaltime = this.timeLimit;
 
         this.moving = {
             left: false,
@@ -106,86 +117,28 @@ class Intro extends Phaser.Scene
             up: false,
             down: false,
         };
+
     }
     
     update(time, delta) {
-        this.sceneDuration = this.sys.game.loop.time - this.startTime;
-        this.timerDisplay.setText("Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s");
+        this.updateTimer(delta);
+        
         // Stop any previous movement from the last frame
         this.player.body.velocity.x = 0;
         this.player.body.velocity.y = 0;
 
-        if (this.joyStick.left) {
-            this.camFocusPlayer = true;
-            this.moving.left = true;
-        }
-        else if (this.joyStick.right) {
-            this.camFocusPlayer = true;
-            this.moving.right = true;
-        }
-        else {
-            this.moving.left = false;
-            this.moving.right = false;
-            if (this.player.anims.getName() == 'sideways')
-                this.player.stopAnim();
-        }
-
-        if (this.joyStick.up) {
-            this.camFocusPlayer = true;
-            this.moving.up = true;
-        }
-        else if (this.joyStick.down) {
-            this.camFocusPlayer = true;
-            this.moving.down = true;
-        }
-        else {
-            this.moving.up = false;
-            this.moving.down = false;
-            if (this.player.anims.getName() == 'up' || this.player.anims.getName() == 'down')
-                this.player.stopAnim();
-        }
-
-        if (this.joyStick.noKey) {
-            this.moving.left = false;
-            this.moving.right = false;
-            this.moving.up = false;
-            this.moving.down = false;
-            this.player.stopAnim();
-        }
-
-        // Horizontal movement
-        if (this.moving.left) {
-            this.player.flipX = true;
-            if (!this.player.anims.isPlaying) 
-                this.player.play("sideways");
-            this.player.body.velocity.x = -this.player.speed;
-        } else if (this.moving.right) {
-            this.player.flipX = false;
-            if (!this.player.anims.isPlaying) 
-                this.player.play("sideways");
-            this.player.body.velocity.x = this.player.speed;
-        }
-      
-        // Vertical movement
-        if (this.moving.up) {
-            this.player.body.velocity.y = -this.player.speed;
-            if (!this.player.anims.isPlaying) 
-                this.player.play("up");
-        } else if (this.moving.down) {
-            this.player.body.velocity.y = this.player.speed;
-            if (!this.player.anims.isPlaying) 
-                this.player.play("down");
-        }
+        this.checkControls();
+        this.movePlayer();
 
         if (this.camFocusPlayer) {
             this.camGoToPlayer(delta);
         }
-      
+        
     }
 
     createItems(itemInfo) {
         for (const key in itemInfo){
-            console.log(`${key} : ${itemInfo[key]["displayName"]}`)
+            // console.log(`${key} : ${itemInfo[key]["displayName"]}`)
             let currentItem = itemInfo[key];
             this.items.push(new Item(this, currentItem["coordinates"]["x"], currentItem["coordinates"]["y"], key, currentItem["imageKey"], {
                     displayName:currentItem["displayName"], 
@@ -210,26 +163,25 @@ class Intro extends Phaser.Scene
 
     makeUI() {
         //https://rexrainbow.github.io/phaser3-rex-notes/docs/site/virtualjoystick/
-        this.timerDisplay = this.add.text(400, 30, "Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s", {font: "40px Arial", fill: "#FFFFFF"});
-        this.timerDisplay.setOrigin(0.5, 0.5).setScrollFactor(0);
-        let { width, height } = this.sys.game.canvas;
+        this.timerDisplay = this.add.text(400, 210, "Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s", {font: "15px Arial", fill: "#000000"});
+        this.timerDisplay.setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(20);
 
-        this.add.text(400, this.player.y-50, "arrows to move, \ninteract while touching an item to pick it up, \ntap inventory to open inventory")
+        this.add.text(300, 228, "arrows to move, \ninteract while touching an item to pick it up, \ntap inventory to open inventory")
 
         this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
             x: 315,
             y: 350,
             radius: 40,
-            base: this.add.image(0, 0, "joystickBase").setScale(1.2).setOrigin(0.5).setAlpha(0.5),
-            thumb: this.add.image(0, 0, "joystickBase").setScale(0.35).setOrigin(0.5).setAlpha(0.5).setRotation(-Math.PI/4),
+            base: this.add.image(0, 0, "joystickBase").setScale(1.2).setOrigin(0.5).setAlpha(0.5).setDepth(20),
+            thumb: this.add.image(0, 0, "joystickBase").setScale(0.35).setOrigin(0.5).setAlpha(0.5).setRotation(-Math.PI/4).setDepth(21),
             dir: '8dir',
         }); 
         this.onButton = false;
-        this.joyStick.on('pointerdown', (pointer) => {this.onButton = true;})
+        this.joyStick.on('pointerdown', (pointer) => {this.onButton = true;});
         this.joyStick.on('pointerup', (pointer) => {this.onButton = false;});
 
-        this.inventoryButton = this.add.image(315, 240, "inventoryButton").setScrollFactor(0).setScale(0.75).setOrigin(0.5).setAlpha(0.5);
-        this.interactButton = this.add.image(490, 350, "interactButton").setScrollFactor(0).setScale(0.75).setOrigin(0.5).setAlpha(0.5);
+        this.inventoryButton = this.add.image(295, 228, "inventoryButton").setScrollFactor(0).setScale(0.75).setOrigin(0.5).setAlpha(0.5).setDepth(20);
+        this.interactButton = this.add.image(505, 365, "interactButton").setScrollFactor(0).setScale(0.75).setOrigin(0.5).setAlpha(0.5).setDepth(20);
         //settings in top right corner
         this.makeSettingsMenu();
 
@@ -248,7 +200,7 @@ class Intro extends Phaser.Scene
                 });
             plinkNoise.play();
             this.time.delayedCall(300, () => {
-                this.scene.pause('intro');
+                this.scene.pause('gameplay');
                 this.scene.launch('inventory', {items:this.player.items});
             });
         })
@@ -272,17 +224,25 @@ class Intro extends Phaser.Scene
                 repeat: 0
                 });
             this.items.forEach(item => {
-                if (!this.player.inInventory(item)) {
+                if (!this.player.checkItem(item, this.player.interacted)) {
                     this.physics.overlap(this.player.body, item.body, (player, itemBody) =>
                     {   
-                        this.player.gainItem({
-                            name:item.name, 
-                            fullName:item.fullName,
-                            displayName:item.displayName,
-                            imageKey:item.imageKey,
-                            description:item.description
-                        });
+                        if (!this.stats[item.name]) {
+                            this.stats[item.name] = 1
+                        }
+                        else {
+                            this.stats[item.name] += 1
+                        }
                         plinkNoise.play();
+                        if (!this.player.checkItem(item, this.player.items)) {
+                            this.player.gainItem({
+                                name:item.name, 
+                                fullName:item.fullName,
+                                displayName:item.displayName,
+                                imageKey:item.imageKey,
+                                description:item.description
+                            });
+                        }
                     });
                 }
             });
@@ -296,7 +256,7 @@ class Intro extends Phaser.Scene
     }
 
     makeSettingsMenu() {
-        this.settingsMenu = this.add.container(560, 230).setScrollFactor(0);
+        this.settingsMenu = this.add.container(560, 230).setScrollFactor(0).setDepth(20);
 
         let fullscreenButton = this.add.text(0, 0, "Fullscreen", {font: "10px Arial", fill: 0xFFFFFF, align: "center"}).setScrollFactor(0).setScale(0.75).setOrigin(0.5);
         fullscreenButton.setScrollFactor(0).setScale(0.75).setOrigin(0.5)
@@ -409,6 +369,7 @@ class Intro extends Phaser.Scene
                 // Store the initial pointer position
                 this.initialPointerPosition = new Phaser.Math.Vector2(pointer.x, pointer.y);
                 this.cameras.main.stopFollow();
+                console.log(this.initialPointerPosition);
             }
         }, this);
     
@@ -465,6 +426,128 @@ class Intro extends Phaser.Scene
             this.cameras.main.setLerp(0.1, 0.1);
         }
     }
+
+    updateTimer(delta) {
+        if (this.sceneDuration != -1000 && this.totaltime-this.sceneDuration/1000 > 0) {
+            this.sceneDuration += delta;
+            this.timerDisplay.setText("Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s");
+        }
+        else if (this.sceneDuration != -1000 && this.totaltime-this.sceneDuration/1000 <= 0) {
+            this.sceneDuration = -1000;
+            this.timerDisplay.setText("Time: 0.00s");
+            if (this.level < 3) {
+                //time limit for the next level
+                let limit = 5;
+                if (this.level == 1) {
+                    limit = 10;
+                }
+                else if (this.level == 2) {
+                    limit = 10;
+                }
+                else if (this.level == 3) {
+                    limit = 10;
+                }
+                this.scene.start("statistics", {stats: this.stats, items: this.player.items, limit: limit, level: this.level + 1});
+            }
+            else {
+                this.scene.start("inventory", {stats: this.stats});
+            }
+        }
+    }
+
+    checkControls() {
+        if (this.joyStick.left) {
+            this.camFocusPlayer = true;
+            this.moving.left = true;
+        }
+        else if (this.joyStick.right) {
+            this.camFocusPlayer = true;
+            this.moving.right = true;
+        }
+        else {
+            this.moving.left = false;
+            this.moving.right = false;
+            if (this.player.anims.getName() == 'sideways')
+                this.player.stopAnim();
+        }
+
+        if (this.joyStick.up) {
+            this.camFocusPlayer = true;
+            this.moving.up = true;
+        }
+        else if (this.joyStick.down) {
+            this.camFocusPlayer = true;
+            this.moving.down = true;
+        }
+        else {
+            this.moving.up = false;
+            this.moving.down = false;
+            if (this.player.anims.getName() == 'up' || this.player.anims.getName() == 'down')
+                this.player.stopAnim();
+        }
+
+        if (this.joyStick.noKey) {
+            this.moving.left = false;
+            this.moving.right = false;
+            this.moving.up = false;
+            this.moving.down = false;
+            this.player.stopAnim();
+        }
+    }
+
+    movePlayer() {
+        // Horizontal movement
+        if (this.moving.left) {
+            this.player.flipX = true;
+            if (!this.player.anims.isPlaying) 
+                this.player.play("sideways");
+            this.player.body.velocity.x = -this.player.speed;
+        } else if (this.moving.right) {
+            this.player.flipX = false;
+            if (!this.player.anims.isPlaying) 
+                this.player.play("sideways");
+            this.player.body.velocity.x = this.player.speed;
+        }
+      
+        // Vertical movement
+        if (this.moving.up) {
+            this.player.body.velocity.y = -this.player.speed;
+            if (!this.player.anims.isPlaying) 
+                this.player.play("up");
+        } else if (this.moving.down) {
+            this.player.body.velocity.y = this.player.speed;
+            if (!this.player.anims.isPlaying) 
+                this.player.play("down");
+        }
+
+        if (this.moving.left || this.moving.right || this.moving.up || this.moving.down) {
+            this.stats.steps++;
+        }
+    }
+
+    uploadStatistics(stats) {
+        // this.add.text(360,300,"click to send\ndata to server").setDepth(15).setScrollFactor(0).setInteractive().on('pointerdown', () => {
+        //     // connect to server and send statistics
+        //     fetch('https://enchanting-third-swing.glitch.me/', {
+        //         method: 'POST',
+        //         headers: {
+        //         },
+        //         mode: 'no-cors',
+        //         body: JSON.stringify({
+        //             steps: 1,
+        //             totalItems: 3,
+        //             item1: 1,
+        //             item2: 1,
+        //             item3: 1,
+        //         })
+        //     })
+        // });
+        fetch('https://enchanting-third-swing.glitch.me/', {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(stats)
+        })
+    }
 }
 
 class Entity extends Phaser.GameObjects.Sprite
@@ -489,6 +572,7 @@ class Player extends Entity
         super(scene, x, y, 'playerRight', name, {scale:1, depth:2, origin:0.5});
         this.createAnimations();
         this.items = config.items || [];
+        this.interacted = [];
         this.speed = config.speed || 100;
         this.body.setSize(this.width-5, this.height-10);
         this.body.setOffset(2.5, 10);
@@ -532,11 +616,12 @@ class Player extends Entity
 
     gainItem(item) {
         this.items.push(item);
+        this.interacted.push(item);
     }
 
-    inInventory(checkItem) {
+    checkItem(checkItem, checkList) {
         let bruh = false;
-        this.items.forEach(item => {
+        checkList.forEach(item => {
             if (item.name == checkItem.name)
                 bruh = true;
         });
@@ -556,22 +641,22 @@ class Item extends Entity
 
 }
 
-const config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    backgroundColor: '#257098',
-    scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
-    },
-    physics: {
-        default: "arcade",
-        arcade: {
-          gravity: { y: 0 } // Top down game, so no gravity
-        },
-    },
-    scene: [Intro, Inventory]
-};
+// const config = {
+//     type: Phaser.AUTO,
+//     width: 800,
+//     height: 600,
+//     backgroundColor: '#257098',
+//     scale: {
+//         mode: Phaser.Scale.FIT,
+//         autoCenter: Phaser.Scale.CENTER_BOTH,
+//     },
+//     physics: {
+//         default: "arcade",
+//         arcade: {
+//           gravity: { y: 0 } // Top down game, so no gravity
+//         },
+//     },
+//     scene: [Gameplay, Inventory]
+// };
 
-const game = new Phaser.Game(config);
+// const game = new Phaser.Game(config);

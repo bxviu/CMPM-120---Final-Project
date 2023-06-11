@@ -139,8 +139,8 @@ class Inventory extends Menu {
         this.wholeContainer = this.add.container(400, -400);
         // this.addText(0, -175, "Inventory", {font: "100px Arial", fill: "#000000", align: 'center'});
         // let box = this.addClickBox(0, 100, "Back", {font: "50px Arial", fill: "#ff0000", align: 'center'});
-        this.currentScene = 'inventory'
-        this.nextScene = 'intro'
+        this.currentScene = 'inventory';
+        this.nextScene = 'gameplay';
         // this.formatItems();
         // this.animateIn(500, box, "inventory", "intro", {resume: true, animateX: 400, animateY: -400});
         this.makeMenu();
@@ -190,7 +190,8 @@ class Inventory extends Menu {
         });//this.add.rexRoundRectangle(-150,130,320,160,10,COLOR_PRIMARY,1);//250, 430, 320, 160, 10, COLOR_PRIMARY, 1);
         descriptionBox.setOrigin(0.5).setDepth(11);
         let descriptionText = this.add.text(-150,130,"", {wordWrap: { width: 320, useAdvancedWrap: true}}).setOrigin(0.5).setDepth(12);//250, 430, '').setDepth(12).setOrigin(0.5);
-        let itemImage = null;
+        let fullName = this.add.text(-150,80,"", {wordWrap: { width: 320, useAdvancedWrap: true}, font: "20px Arial", fill: "#000000", align: 'center'}).setOrigin(0.5).setDepth(12);//250, 430, '').setDepth(12).setOrigin(0.5);
+        let itemImage = this.add.image(-150, -80, "item1").setScale(0.5).setDepth(12).setOrigin(0.5).setAlpha(0);
         // this.wholeContainer.add([backBox, descriptionBox, descriptionText]);
         let slice = this.make.nineslice({
             x: 0,
@@ -312,24 +313,30 @@ class Inventory extends Menu {
                 cellContainer.getElement('background')
                     .setStrokeStyle(2, COLOR_LIGHT)
                     .setDepth(1);
-                if (itemImage) {
-                    itemImage.destroy();
-                }
-                let imageKey = this.gridTable.items[cellIndex].imageKey;
-                itemImage = this.add.image(250, 210, imageKey).setScale(0.5).setDepth(12).setOrigin(0.5);
-                descriptionText.setText(this.gridTable.items[cellIndex].description);
-
+               
             }, this)
             .on('cell.out', function (cellContainer, cellIndex, pointer) {
                 cellContainer.getElement('background')
                     .setStrokeStyle(2, COLOR_DARK)
                     .setDepth(0);
-                if (itemImage) {
-                    itemImage.destroy();
-                }
-                descriptionText.setText("");
+                // if (itemImage) {
+                //     itemImage.destroy();
+                // }
+                // descriptionText.setText("");
+                // fullName.setText("");
             }, this)
             .on('cell.click', function (cellContainer, cellIndex, pointer) {
+                // if (itemImage) {
+                //     // itemImage.destroy();
+                // }
+                let imageKey = this.gridTable.items[cellIndex].imageKey;
+                // itemImage = this.add.image(250, 210, imageKey).setScale(0.5).setDepth(12).setOrigin(0.5);
+                console.log(itemImage);
+                itemImage.setTexture(imageKey).setAlpha(1);
+
+                descriptionText.setText(this.gridTable.items[cellIndex].description);
+                fullName.setText(this.gridTable.items[cellIndex].fullName);
+
                 var nextCellIndex = cellIndex + 1;
                 var nextItem = this.gridTable.items[nextCellIndex];
                 if (!nextItem) {
@@ -337,10 +344,9 @@ class Inventory extends Menu {
                 }
                 nextItem.color = 0xffffff - nextItem.color;
                 this.gridTable.updateVisibleCell(nextCellIndex);
-          
             }, this)
 
-        this.wholeContainer.add([backBox, descriptionBox, descriptionText]);
+        this.wholeContainer.add([backBox, descriptionBox, descriptionText, fullName, itemImage]);
     }
 
     getFooterSizer(scene, orientation) {
@@ -421,4 +427,26 @@ class Inventory extends Menu {
 
     }
 
+}
+
+class Statistics extends Menu {
+    constructor() {
+        super("statistics");
+    }
+    init(data) {
+        this.data = data;
+    }
+    preload() {
+        super.preload();
+    }
+    create() {
+        super.create();
+        this.addText(0,0,"Steps: " + this.data.stats.steps)
+        // let box = this.addClickBox(0,0, "next")
+        this.animateIn(1000, null, "statistics", "cinematic", this.data)
+        this.input.on('pointerdown', () => {
+            this.cameras.main.fade(1000, 0,0,0);
+            this.time.delayedCall(1000, () => this.scene.start('cinematic', this.data));
+        });
+    }
 }
