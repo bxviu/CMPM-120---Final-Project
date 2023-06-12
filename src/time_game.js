@@ -9,9 +9,6 @@ class Gameplay extends Phaser.Scene
         this.stats = data.stats || {
             steps: 0,
             totalItems: 0,
-            item1: 0,
-            item2: 0,
-            item3: 0,
         };
         this.playerItems = data.items || [];
         this.level = data.level || 1;
@@ -65,10 +62,32 @@ class Gameplay extends Phaser.Scene
             this.bgMusic.play();
         }
         console.log(this)
+        this.sceneDuration = 0;
+        this.timer = 0;
+        this.totaltime = this.timeLimit;
 
-        this.player = (new Player(this, 20, 145, 'InputName', {speed:50+(25*(3 - this.level)), items:this.playerItems}));
+        this.moving = {
+            left: false,
+            right: false,
+            up: false,
+            down: false,
+        };
+
+        this.player = (new Player(this, 0, 145, 'InputName', {speed:50+(25*(3 - this.level)), items:this.playerItems}));
         console.log(this.player.speed)
         const map = this.make.tilemap({ key: "map" });
+        this.player.setAlpha(0);
+        this.player.play("sideways");
+        this.tweens.add({
+            targets: this.player,
+            x: 40,
+            alpha:1,
+            duration: 1000,
+            onComplete: () => {
+                this.player.stopAnim();
+                this.sceneDuration = 0;
+            }
+        })
 
         // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
         // Phaser's cache (i.e. the name you used in preload)
@@ -106,18 +125,6 @@ class Gameplay extends Phaser.Scene
         this.makeUI();
         this.initializeCamera(map);
         this.addMapDragging();
-
-        this.sceneDuration = 0;
-        this.timer = 0;
-        this.totaltime = this.timeLimit;
-
-        this.moving = {
-            left: false,
-            right: false,
-            up: false,
-            down: false,
-        };
-
     }
     
     update(time, delta) {
@@ -228,11 +235,12 @@ class Gameplay extends Phaser.Scene
                     this.physics.overlap(this.player.body, item.body, (player, itemBody) =>
                     {   
                         if (!this.stats[item.name]) {
-                            this.stats[item.name] = 1
+                            this.stats[item.name] = 1;
                         }
                         else {
-                            this.stats[item.name] += 1
+                            this.stats[item.name] += 1;
                         }
+                        this.stats.totalItems += 1;
                         plinkNoise.play();
                         if (!this.player.checkItem(item, this.player.items)) {
                             this.player.gainItem({
@@ -491,7 +499,7 @@ class Gameplay extends Phaser.Scene
             this.moving.right = false;
             this.moving.up = false;
             this.moving.down = false;
-            this.player.stopAnim();
+            // this.player.stopAnim();
         }
     }
 
@@ -525,29 +533,6 @@ class Gameplay extends Phaser.Scene
         }
     }
 
-    uploadStatistics(stats) {
-        // this.add.text(360,300,"click to send\ndata to server").setDepth(15).setScrollFactor(0).setInteractive().on('pointerdown', () => {
-        //     // connect to server and send statistics
-        //     fetch('https://enchanting-third-swing.glitch.me/', {
-        //         method: 'POST',
-        //         headers: {
-        //         },
-        //         mode: 'no-cors',
-        //         body: JSON.stringify({
-        //             steps: 1,
-        //             totalItems: 3,
-        //             item1: 1,
-        //             item2: 1,
-        //             item3: 1,
-        //         })
-        //     })
-        // });
-        fetch('https://enchanting-third-swing.glitch.me/', {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify(stats)
-        })
-    }
 }
 
 class Entity extends Phaser.GameObjects.Sprite

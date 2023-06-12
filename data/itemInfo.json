@@ -1,6 +1,6 @@
 {
-    "bow": {
-        "displayName": "shortnameA",
+    "ball": {
+        "displayName": "Basketball",
         "fullName": "more detailed name for bow",
         "description": "A placeholder description for placeholder bow. testtest",
         "imageKey": "item1",
@@ -10,8 +10,8 @@
                 "y": 283
             }
     },
-    "arrow": {
-        "displayName": "shortnameB",
+    "bucketAndShovel": {
+        "displayName": "Bucket & Shovel",
         "fullName": "more detailed name for arrow",
         "description": "A placeholder description for placeholder arrow. testtest",
         "imageKey": "item2",
@@ -21,8 +21,8 @@
                 "y": 217
             }
     },
-    "bruh": {
-        "displayName": "shortnameC",
+    "leaves": {
+        "displayName": "Leaf Pile",
         "fullName": "more detailed name audauah",
         "description": "A placeholder description asfor placeholder arrow. testtest",
         "imageKey": "item2",
@@ -32,8 +32,8 @@
                 "y": 173
             }
     },
-    "arroro": {
-        "displayName": "shortnameD",
+    "book": {
+        "displayName": "Academic Book",
         "fullName": "more detailed name for arroawdadawdaw",
         "description": "A placeholder description for placeholder arrow. testtest",
         "imageKey": "item2",
@@ -43,8 +43,8 @@
                 "y": 93
             }
     },
-    "oaktree": {
-        "displayName": "Tree",
+    "tree": {
+        "displayName": "Special Tree",
         "fullName": "Oak Tree Near my House",
         "description": "Wow this tree grew up a lot since I left a seed for it here around 20 years ago. I did not think it would grow this big!",
         "imageKey": "tree",
@@ -52,6 +52,61 @@
             {
                 "x": 1421,
                 "y": 630
+            }
+    },
+    "swingset": {
+        "displayName": "Swingset",
+        "fullName": "more detailed name for Swingset",
+        "description": "A placeholder description for placeholder arrow. testtest",
+        "imageKey": "item2",
+        "coordinates":
+            {
+                "x": 275,
+                "y": 93
+            }
+    },
+    "boat": {
+        "displayName": "Toy Boat",
+        "fullName": "more detailed name for boat",
+        "description": "A placeholder description for placeholder arrow. testtest",
+        "imageKey": "item2",
+        "coordinates":
+            {
+                "x": 275,
+                "y": 93
+            }
+    },
+    "flag": {
+        "displayName": "Flagpole",
+        "fullName": "more detailed name for flag",
+        "description": "A placeholder description for placeholder arrow. testtest",
+        "imageKey": "item2",
+        "coordinates":
+            {
+                "x": 275,
+                "y": 93
+            }
+    },
+    "cap": {
+        "displayName": "Baseball Cap",
+        "fullName": "more detailed name for cap",
+        "description": "A placeholder description for placeholder arrow. testtest",
+        "imageKey": "item2",
+        "coordinates":
+            {
+                "x": 275,
+                "y": 93
+            }
+    },
+    "dog": {
+        "displayName": "Sitting Dog",
+        "fullName": "more detailed name for dog",
+        "description": "A placeholder description for placeholder arrow. testtest",
+        "imageKey": "item2",
+        "coordinates":
+            {
+                "x": 275,
+                "y": 93
             }
     }
 }

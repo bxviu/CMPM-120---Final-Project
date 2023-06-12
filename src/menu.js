@@ -224,9 +224,9 @@ class Inventory extends Menu {
 
             table: {
                 cellWidth: (scrollMode === 0) ? undefined : 120,
-                cellHeight: (scrollMode === 0) ? 120 : undefined,
+                cellHeight: (scrollMode === 0) ? 60 : undefined,
 
-                columns: 2,
+                columns: 1,
 
                 mask: {
                     padding: 2,
@@ -286,7 +286,7 @@ class Inventory extends Menu {
 
                         space: {
                             icon: 10,
-                            left: (scrollMode === 0) ? 10 : 0,
+                            left: (scrollMode === 0) ? 20 : 0,
                             top: (scrollMode === 0) ? 0 : 15,
                         }
                     });
@@ -297,7 +297,7 @@ class Inventory extends Menu {
 
                 // Set properties from item value
                 cellContainer.setMinSize(width, height); // Size might changed in this demo
-                cellContainer.getElement('text').setText(item.name); // Set text of text object
+                cellContainer.getElement('text').setText(item.displayName); // Set text of text object
                 cellContainer.getElement('icon').setScale(0.1)
                 //.setFillStyle(item.color); // Set fill color of round rectangle object
                 cellContainer.getElement('background').setStrokeStyle(2, COLOR_DARK).setDepth(0);
@@ -434,19 +434,68 @@ class Statistics extends Menu {
         super("statistics");
     }
     init(data) {
-        this.data = data;
+        this.data = data || {
+            steps: 0,
+            totalItems: 0,
+            item1: 0,
+            item2: 0,
+            item3: 0,
+        };
     }
     preload() {
         super.preload();
     }
     create() {
         super.create();
-        this.addText(0,0,"Steps: " + this.data.stats.steps)
+        let config = {
+            font: "10px Arial",
+            fill: "#000000",
+            wordWrap: { width: 450, useAdvancedWrap: true},
+            align: 'center'
+        };
+        this.addText(0,-100,"Steps: " + this.data.stats.steps,config)
+        this.addText(0,-80,"Total Items: " + this.data.stats.steps,config)
+        let yVal = -60
+        for (let key in this.data.stats) {
+            if (key == "steps" || key == "totalItems") {
+                continue;
+            }
+            this.addText(0,yVal,key + ": " + this.data.stats[key], config)
+            yVal += 20;
+        }
+
+        if (this.data.level == 3) {
+            this.uploadStatistics(this.data.stats);
+        }
         // let box = this.addClickBox(0,0, "next")
         this.animateIn(1000, null, "statistics", "cinematic", this.data)
         this.input.on('pointerdown', () => {
             this.cameras.main.fade(1000, 0,0,0);
             this.time.delayedCall(1000, () => this.scene.start('cinematic', this.data));
         });
+    }
+
+    uploadStatistics(stats) {
+        // this.add.text(360,300,"click to send\ndata to server").setDepth(15).setScrollFactor(0).setInteractive().on('pointerdown', () => {
+        //     // connect to server and send statistics
+        //     fetch('https://enchanting-third-swing.glitch.me/', {
+        //         method: 'POST',
+        //         headers: {
+        //         },
+        //         mode: 'no-cors',
+        //         body: JSON.stringify({
+        //             steps: 1,
+        //             totalItems: 3,
+        //             item1: 1,
+        //             item2: 1,
+        //             item3: 1,
+        //         })
+        //     })
+        // });
+        fetch('https://enchanting-third-swing.glitch.me/', {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(stats)
+        })
     }
 }
