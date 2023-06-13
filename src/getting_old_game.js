@@ -11,6 +11,11 @@
         {
             this.data = Object.keys(data).length === 0 ? {limit: 60} : data;
         }
+        preload(){
+            this.load.image('ball', './assets/items/Basketball.png');
+            this.load.image('cap', './assets/items/Baseball Cap.png');
+            this.load.spritesheet('playerDown', './assets/images/character/ACharDown.png', { frameWidth: 14, frameHeight: 19 });
+        }
         idleMotionTween(object, x, y){
             this.tweens.chain({
                 targets: object,
@@ -30,20 +35,20 @@
         }
         create ()
         {
-            
+            // background
             this.add.rectangle(0, 0, 2000, 2000, 0x785741);
-            // example objects
+
+            // screensaver objects
             let recPosX = Phaser.Math.Between(100,700);
             let recPosY = Phaser.Math.Between(100,700);
-            this.screensaver= this.add.rectangle(recPosX, recPosY, 200, 200, 0x000000);
-            this.physics.add.existing(this.screensaver);
-            this.screensaver.body.setGravity(0, 0).setBounce(1).setCollideWorldBounds(true).setVelocity(200);
+            this.screensaver1 = this.physics.add.image(recPosX, recPosY, "cap");
+            this.screensaver1.setGravity(0, 0).setBounce(1).setCollideWorldBounds(true).setVelocity(200);
             
+            // i would make the items bigger but this is ok for now
             let circlePosX = Phaser.Math.Between(100,700);
-            let circlePosY = Phaser.Math.Between(100,300);
-            this.ballin=this.add.circle(circlePosX,circlePosY, 100, 0xffffff);
-            this.physics.add.existing(this.ballin);
-            this.ballin.body.setCircle(100).setGravity(0, 100).setBounce(1).setCollideWorldBounds(true).setVelocity(-200, -100);
+            let circlePosY = Phaser.Math.Between(50,100);
+            this.screensaver2 = this.physics.add.image(recPosX, recPosY, "ball");
+            this.screensaver2.setCircle(10).setGravity(0, 100).setBounce(1).setCollideWorldBounds(true).setVelocity(-200,-200);
             
             // procedural logo
             // no tweens because then i would have to match up all of these shapes and the time constraint does not allow for it at present time
@@ -84,6 +89,7 @@
             const inventory = this.add.text(400, 300, "View your memories", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5).setInteractive();
             const credits = this.add.text(400, 350, "Credits", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5).setInteractive();
 
+            // tweens for the buttons to move slightly, and maybe intrigue the player
             this.idleMotionTween(start, 400, 250);
             this.idleMotionTween(inventory, 400, 300);
             this.idleMotionTween(credits, 400, 350);
@@ -140,7 +146,7 @@
             this.add.rectangle(0, 0, 2000, 2000, 0x785741);
             const par1 = this.add.text(400, 150, "You've come home from a busy day at school.\nYour parents are proud\nYou've finished your second year of school.", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
             const par2 = this.add.text(400, 300, "Now here you stand at home,\nTwo months of summer break!\nWith a long time to explore limitless possibilities.", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
-            const par3 = this.add.text(400, 400, "sample button here", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
+            const par3 = this.add.text(400, 400, "Click here to begin...", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
             par1.setAlpha(0);
             par2.setAlpha(0);
             par3.setAlpha(0);
@@ -166,8 +172,18 @@
                 duration: 1000,
             });
             this.hoverInteract(par3);
-            this.add.rectangle(675, 500, 50, 100, 0xffffff);
-            this.add.text(625, 450, "placeholder for walking sprite animation",{align:"center",color:"#000000",wordWrap:{width:50}});
+
+            // walking character sprite
+            this.anims.create({
+                key: 'idle',
+                frames: this.anims.generateFrameNumbers("playerDown", { start: 0, end: 3 }),
+                delay: 0,
+                duration: null,
+                frameRate: 6,
+                repeat: -1,
+            })
+            let walking = this.add.sprite(675, 500, "playerDown");
+            walking.setScale(7).play('idle');
 
             // note: it is possible for people to skip the cutscene because of this, might change in the future
             par3.on("pointerdown",()=>{
