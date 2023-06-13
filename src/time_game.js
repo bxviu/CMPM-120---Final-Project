@@ -62,8 +62,10 @@ class Gameplay extends Phaser.Scene
             this.bgMusic.play();
         }
         console.log(this)
+
         this.sceneDuration = 0;
-        this.timer = 0;
+        this.timer = false;
+
         this.totaltime = this.timeLimit;
 
         this.moving = {
@@ -86,7 +88,7 @@ class Gameplay extends Phaser.Scene
             duration: 1000,
             onComplete: () => {
                 this.player.stopAnim();
-                this.sceneDuration = 0;
+                this.timer = true;
             }
         })
 
@@ -377,6 +379,7 @@ class Gameplay extends Phaser.Scene
             if (!this.onButton) {
                 this.joyStick.setEnable(false);
                 this.camFocusPlayer = false;
+                this.timer = false;
                 // Store the initial pointer position
                 this.initialPointerPosition = new Phaser.Math.Vector2(pointer.x, pointer.y);
                 this.cameras.main.stopFollow();
@@ -439,7 +442,7 @@ class Gameplay extends Phaser.Scene
     }
 
     updateTimer(delta) {
-        if (this.sceneDuration != -1000 && this.totaltime-this.sceneDuration/1000 > 0) {
+        if (this.timer && this.sceneDuration != -1000 && this.totaltime-this.sceneDuration/1000 > 0) {
             this.sceneDuration += delta;
             this.timerDisplay.setText("Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s");
         }
@@ -510,6 +513,11 @@ class Gameplay extends Phaser.Scene
             this.moving.down = false;
             // this.player.stopAnim();
         }
+
+        if (!this.timer && (this.moving.left || this.moving.right || this.moving.up || this.moving.down)) {
+            this.timer = true;
+        }
+        
     }
 
     movePlayer() {

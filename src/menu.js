@@ -496,6 +496,7 @@ class Statistics extends Menu {
     }
     create() {
         super.create();
+        console.log(this.data);
         let configTitle = {
             font: "40px Arial",
             fill: "#000000",
@@ -594,7 +595,7 @@ class Statistics extends Menu {
             this.addText(0,75,"No Items Found",configSmall)
         }
 
-        if (this.data.level == 3) {
+        if (this.data.level == 4) {
             this.uploadStatistics(this.data.stats);
         }
 
@@ -652,7 +653,6 @@ class Statistics extends Menu {
             this.time.delayedCall(1000, () => this.scene.start('cinematic', this.data));
         })
         .on('pointerover', () => {
-            this.xButton.setAlpha(1);
             this.tweens.add({
                 targets: this.xButton,
                 angle: -180,
@@ -662,13 +662,12 @@ class Statistics extends Menu {
             });
         })
         .on('pointerout', () => {
-            this.xButton.setAlpha(0.5);
             this.tweens.add({
                 targets: this.xButton,
                 angle: 0,
                 duration: 200,
                 ease: 'Power2',
-                alpha: 0.75
+                alpha: 0.5
             });
         });
     }
