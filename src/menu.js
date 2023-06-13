@@ -14,10 +14,7 @@ class Menu extends Phaser.Scene {
         this.load.image('inventoryButton', 'inventoryButton.png');
         this.load.image('xButton', 'xButton.png');
     }   
-    create(color) {
-        if (color == undefined) {
-            color = 0x99b0af;
-        }
+    create() {
         this.wholeContainer = this.add.container(400, -1000);
 
         let entireBox = this.addBackgroundBox(0,0,750,550,true);
@@ -65,7 +62,7 @@ class Menu extends Phaser.Scene {
         return displayText;
     }
 
-    addBackgroundBox(x,y,width,height,big,color) {
+    addBackgroundBox(x,y,width,height,big,color,addToContainer) {
         let slice = this.make.nineslice({
             x: x,
             y: y,
@@ -82,7 +79,9 @@ class Menu extends Phaser.Scene {
         
             add: true
         }).setTint(color || 0xffffff);
-        this.wholeContainer.add([slice]);
+        if (addToContainer) {
+            this.wholeContainer.add([slice]);
+        }
         return slice;
     }
 
@@ -175,11 +174,11 @@ class Inventory extends Menu {
     }
     create() {
         this.wholeContainer = this.add.container(400, -400);
+        // super.create()
         // this.addText(0, -175, "Inventory", {font: "100px Arial", fill: "#000000", align: 'center'});
         // let box = this.addClickBox(0, 100, "Back", {font: "50px Arial", fill: "#ff0000", align: 'center'});
         this.currentScene = 'inventory';
         // this.nextScene = 'gameplay';
-        // this.formatItems();
         // this.animateIn(500, box, "inventory", "intro", {resume: true, animateX: 400, animateY: -400});
         this.makeMenu();
         this.wholeContainer.setDepth(10);
@@ -194,61 +193,11 @@ class Inventory extends Menu {
     }
 
     makeMenu() {
-        let backBox = this.make.nineslice({
-            x: -150,
-            y: 0,
-            key: 'box',
-
-            width: 450,
-            height: 350,
-            leftWidth: 5,
-            rightWidth: 5,
-            topHeight: 5,
-            bottomHeight: 5,
-        
-            origin: {x: 0.5, y: 0.5},
-        
-            add: true
-        });//this.add.rexRoundRectangle(-150,0,350,450,10,COLOR_LIGHT,1);//250, 300, 350, 450, 10, COLOR_LIGHT, 1);
-        backBox.setOrigin(0.5).setDepth(10).setRotation(Math.PI/2).setTint(0xd1a192);
-        let descriptionBox = this.make.nineslice({
-            x: -150,
-            y: 130,
-            key: 'box',
-
-            width: 320,
-            height: 160,
-            leftWidth: 5,
-            rightWidth: 5,
-            topHeight: 5,
-            bottomHeight: 5,
-        
-            origin: {x: 0.5, y: 0.5},
-        
-            add: true
-        });//this.add.rexRoundRectangle(-150,130,320,160,10,COLOR_PRIMARY,1);//250, 430, 320, 160, 10, COLOR_PRIMARY, 1);
-        descriptionBox.setOrigin(0.5).setDepth(11);
+        let backBox = this.addBackgroundBox(-150,0,450,350,false,0xd1a192,false).setDepth(10).setRotation(Math.PI/2);
+        let descriptionBox = this.addBackgroundBox(-150,130,320,160,false,null,false).setDepth(11);
         let descriptionText = this.add.text(-150,140,"Click an item to view your memories about it", {wordWrap: { width: 300, useAdvancedWrap: true}}).setOrigin(0.5).setDepth(12);//250, 430, '').setDepth(12).setOrigin(0.5);
         let fullName = this.add.text(-150,80,"", {wordWrap: { width: 320, useAdvancedWrap: true}, font: "20px Arial", fill: "#000000", align: 'center'}).setOrigin(0.5).setDepth(12);//250, 430, '').setDepth(12).setOrigin(0.5);
         let itemImage = this.add.image(-150, -80, "item1").setScale(0.5).setDepth(12).setOrigin(0.5).setAlpha(0);
-        // this.wholeContainer.add([backBox, descriptionBox, descriptionText]);
-        let slice = this.make.nineslice({
-            x: 0,
-            y: 0,
-            key: 'box',
-
-            width: 50,
-            height: 56,
-            leftWidth: 5,
-            rightWidth: 5,
-            topHeight: 5,
-            bottomHeight: 5,
-        
-            origin: {x: 0.5, y: 0.5},
-        
-            add: true
-        })
-        slice.setTint(0x785741);
 
         var scrollMode = 0; // 0:vertical, 1:horizontal
         this.gridTable = this.rexUI.add.gridTable({
@@ -259,7 +208,7 @@ class Inventory extends Menu {
 
             scrollMode: scrollMode,
 
-            background: slice,//this.rexUI.add.roundRectangle(0, 0, 20, 10, 10, COLOR_PRIMARY),
+            background: this.addBackgroundBox(0,0,50,50,true,0x785741,false),
 
             table: {
                 cellWidth: (scrollMode === 0) ? undefined : 120,
@@ -275,8 +224,8 @@ class Inventory extends Menu {
             },
 
             slider: {
-                track: this.rexUI.add.roundRectangle(0, 0, 20, 10, 10, COLOR_DARK),
-                thumb: this.rexUI.add.roundRectangle(0, 0, 0, 0, 13, COLOR_LIGHT),
+                track: this.addBackgroundBox(0,0,20,10,false,0x785741,false),
+                thumb: this.addBackgroundBox(0,0,15,30,false,null,false),
             },
           
             mouseWheelScroller: {
@@ -289,7 +238,7 @@ class Inventory extends Menu {
                 height: (scrollMode === 0) ? 30 : undefined,
 
                 orientation: scrollMode,
-                background: this.rexUI.add.roundRectangle(0, 0, 20, 20, 0, COLOR_DARK),
+                background: this.addBackgroundBox(0,0,20,20,false,0xc9ba8b,false),
                 text: this.add.text(0, 0, 'Inventory').setOrigin(0.5),
                 align: 'center',
             }),
@@ -320,7 +269,7 @@ class Inventory extends Menu {
 
                         orientation: scrollMode,
                         background: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 0).setStrokeStyle(2, COLOR_DARK),
-                        icon: scene.add.image(0, 0, item.imageKey),//scene.rexUI.add.roundRectangle(0, 0, 20, 20, 10, 0x0),
+                        icon: scene.add.image(0, 0, item.imageKey),
                         text: scene.add.text(0, 0, ''),
 
                         space: {
@@ -329,23 +278,18 @@ class Inventory extends Menu {
                             top: (scrollMode === 0) ? 0 : 15,
                         }
                     });
-                    // console.log(cell.index + ': create new cell-container');
-                } else {
-                    // console.log(cell.index + ': reuse cell-container');
-                }
+                } 
 
                 // Set properties from item value
                 cellContainer.setMinSize(width, height); // Size might changed in this demo
                 cellContainer.getElement('text').setText(item.displayName); // Set text of text object
                 cellContainer.getElement('icon').setScale(0.1)
-                //.setFillStyle(item.color); // Set fill color of round rectangle object
                 cellContainer.getElement('background').setStrokeStyle(2, COLOR_DARK).setDepth(0);
                 return cellContainer;
             },
-            items: this.items//this.createItems(10)
+            items: this.items
         })
             .layout()
-        // .drawBounds(this.add.graphics(), 0xff0000);
 
         this.gridTable
             .on('cell.over', function (cellContainer, cellIndex, pointer) {
@@ -358,19 +302,9 @@ class Inventory extends Menu {
                 cellContainer.getElement('background')
                     .setStrokeStyle(2, COLOR_DARK)
                     .setDepth(0);
-                // if (itemImage) {
-                //     itemImage.destroy();
-                // }
-                // descriptionText.setText("");
-                // fullName.setText("");
             }, this)
             .on('cell.click', function (cellContainer, cellIndex, pointer) {
-                // if (itemImage) {
-                //     // itemImage.destroy();
-                // }
                 let imageKey = this.gridTable.items[cellIndex].imageKey;
-                // itemImage = this.add.image(250, 210, imageKey).setScale(0.5).setDepth(12).setOrigin(0.5);
-                console.log(itemImage);
                 itemImage.setTexture(imageKey).setAlpha(1);
 
                 descriptionText.setText(this.gridTable.items[cellIndex].description);
@@ -404,9 +338,9 @@ class Inventory extends Menu {
             height: (orientation === 0) ? 40 : undefined,
             width: (orientation === 0) ? undefined : 40,
             orientation: orientation,
-            background: scene.rexUI.add.roundRectangle(0, 0, 2, 2, 20, COLOR_DARK),
+            background: this.addBackgroundBox(0,0,2,2,false,0xc9ba8b,false), //scene.rexUI.add.roundRectangle(0, 0, 2, 2, 20, COLOR_DARK),
             text: scene.add.text(0, 0, text),
-            icon: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 10, COLOR_LIGHT),
+            icon: scene.add.image(0, 0, 'xButton').setScale(0.3),//scene.rexUI.add.roundRectangle(0, 0, 0, 0, 10, COLOR_LIGHT),
             align: 'center',
             space: {           
                 icon: 10
@@ -414,58 +348,26 @@ class Inventory extends Menu {
         })
             .setInteractive()
             .on('pointerdown', function () {
-                console.log(`Pointer down ${text}`)
-                scene.menuLeave([scene.wholeContainer,scene.gridTable], scene.currentScene, scene.nextScene, {resume:true, animateX:400, animateY:-400});   
-                // console.log(scene);
-                // scene.scene.resume(scene.nextScene);
-                // scene.scene.stop(scene.currentScene);                
-
+                scene.tweens.add({
+                    targets: this.getElement('background'),
+                    scaleX: 0.9,
+                    scaleY: 0.9,
+                    duration: 200,
+                    ease: 'Power2',
+                    yoyo: true,
+                    repeat: 0,
+                    onComplete: () => {
+                        scene.menuLeave([scene.wholeContainer,scene.gridTable], scene.currentScene, scene.nextScene, {resume:true, animateX:400, animateY:-400});
+                    }
+                });      
             })
             .on('pointerover', function(){
-                this.getElement('background').setStrokeStyle(1, 0xffffff);
+                this.getElement('background').setTint(0xffffff)
             })
             .on('pointerout', function(){
-                this.getElement('background').setStrokeStyle();
+                this.getElement('background').setTint(0xc9ba8b)
             })  
     }
-
-    createItems(count) {
-        var data = [];
-        for (var i = 0; i < count; i++) {
-            data.push({
-                id: i,
-                color: Random(0, 0xffffff)
-            });
-        }
-        return data;
-    }
-    
-
-    formatItems() {
-
-        let imageX = -200;
-        let imageY = -80;
-        let id = 0;
-        console.log(this.items);
-        console.log(this.createItems(2));
-        this.items.forEach(item => {
-            let image = null;
-            item.id = id;
-            id++;
-            // if (item.name == "bow") {
-                console.log(item.displayName);
-                image = this.add.image(imageX, imageY, item.imageKey).setOrigin(0.5);
-            // }
-            if (image) {
-                image.setScale(0.25);
-                image.setDepth(1);
-                imageX += 100;
-                this.wholeContainer.add([image]);
-            }
-        });    
-
-    }
-
 }
 
 class Statistics extends Menu {
@@ -515,11 +417,11 @@ class Statistics extends Menu {
             wordWrap: { width: 450, useAdvancedWrap: true},
             align: 'center'
         };
-        this.addBackgroundBox(0,-210,600,75, false, );
+        this.addBackgroundBox(0,-210,600,75, false, null, true);
         this.addText(0,-210,"Long Time - Statistics: " + (this.data.level - 1),configTitle);
-        this.addBackgroundBox(-150,-140,275,50, false, );
+        this.addBackgroundBox(-150,-140,275,50, false, null, true );
         this.addText(-150,-140,"Steps: " + this.data.stats.steps,configBig)
-        this.addBackgroundBox(150,-140,275,50, false, );
+        this.addBackgroundBox(150,-140,275,50, false, null, true );
         this.data.stats.totalItems = 0;
         for (let key in this.data.stats) {
             if (key == "steps" || key == "totalItems") {
@@ -538,7 +440,7 @@ class Statistics extends Menu {
             if (key == "steps" || key == "totalItems") {
                 continue;
             }
-            this.addBackgroundBox(xVal,yVal,350,75, false, );
+            this.addBackgroundBox(xVal,yVal,350,75, false, null, true );
             if (key == "ball") {
                 this.addImage(xVal+imageOffset,yVal, "item1", )
                 this.addText(xVal,yVal,"Ball Found: " + this.data.stats.ball,configSmall)
@@ -591,7 +493,7 @@ class Statistics extends Menu {
         }
 
         if (xVal == -180 && yVal == -65) {
-            this.addBackgroundBox(0,75,350,75, false, );
+            this.addBackgroundBox(0,75,350,75, false, null, true );
             this.addText(0,75,"No Items Found",configSmall)
         }
 
@@ -603,15 +505,11 @@ class Statistics extends Menu {
         this.makeButtons();
 
         this.animateIn(1000, null, "statistics", "cinematic", this.data)
-        // this.input.on('pointerdown', () => {
-        //     this.cameras.main.fade(1000, 0,0,0);
-        //     this.time.delayedCall(1000, () => this.scene.start('cinematic', this.data));
-        // });
     }
 
     makeButtons() {
         let plinkNoise = this.sound.add('plink', { loop: false });
-        this.inventoryButton = this.add.image(40, 40, "inventoryButton").setScrollFactor(0).setScale(1).setOrigin(0.5).setAlpha(0.5).setDepth(20);
+        this.inventoryButton = this.add.image(-360, -260, "inventoryButton").setScrollFactor(0).setScale(1).setOrigin(0.5).setAlpha(0.5).setDepth(20);
         this.inventoryButton.setInteractive({useHandCursor: true});
         this.inventoryButton.on('pointerdown', () => {
             this.tweens.add({
@@ -636,7 +534,7 @@ class Statistics extends Menu {
             this.inventoryButton.setAlpha(0.5);
         });
 
-        this.xButton = this.add.image(760, 40, "xButton").setScrollFactor(0).setScale(1).setOrigin(0.5).setAlpha(0.5).setDepth(20);
+        this.xButton = this.add.image(360, -260, "xButton").setScrollFactor(0).setScale(1).setOrigin(0.5).setAlpha(0.5).setDepth(20);
         this.xButton.setInteractive({useHandCursor: true});
         this.xButton.on('pointerdown', () => {
             this.tweens.add({
@@ -670,25 +568,12 @@ class Statistics extends Menu {
                 alpha: 0.5
             });
         });
+
+        this.wholeContainer.add([this.inventoryButton, this.xButton]);
     }
+    
 
     uploadStatistics(stats) {
-        // this.add.text(360,300,"click to send\ndata to server").setDepth(15).setScrollFactor(0).setInteractive().on('pointerdown', () => {
-        //     // connect to server and send statistics
-        //     fetch('https://enchanting-third-swing.glitch.me/', {
-        //         method: 'POST',
-        //         headers: {
-        //         },
-        //         mode: 'no-cors',
-        //         body: JSON.stringify({
-        //             steps: 1,
-        //             totalItems: 3,
-        //             item1: 1,
-        //             item2: 1,
-        //             item3: 1,
-        //         })
-        //     })
-        // });
         fetch('https://cmpm-120-final---long-time-statistics.glitch.me/', {
             method: 'POST',
             mode: 'no-cors',

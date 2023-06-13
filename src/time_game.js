@@ -88,7 +88,12 @@ class Gameplay extends Phaser.Scene
             duration: 1000,
             onComplete: () => {
                 this.player.stopAnim();
-                this.timer = true;
+                // if (this.level == 1) {
+                //     this.playTutorial();
+                // }
+                // else {
+                //     this.timer = true;
+                // }
             }
         })
 
@@ -177,8 +182,6 @@ class Gameplay extends Phaser.Scene
         //https://rexrainbow.github.io/phaser3-rex-notes/docs/site/virtualjoystick/
         this.timerDisplay = this.add.text(400, 210, "Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s", {font: "15px Arial", fill: "#000000"});
         this.timerDisplay.setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(20);
-
-        this.add.text(300, 228, "arrows to move, \ninteract while touching an item to pick it up, \ntap inventory to open inventory")
 
         this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
             x: 315,
