@@ -48,7 +48,7 @@
             let circlePosX = Phaser.Math.Between(100,700);
             let circlePosY = Phaser.Math.Between(50,100);
             this.screensaver2 = this.physics.add.image(recPosX, recPosY, "ball");
-            this.screensaver2.setCircle(10).setGravity(0, 100).setBounce(1).setCollideWorldBounds(true).setVelocity(-200,-200);
+            this.screensaver2.setCircle(15).setGravity(0, 100).setBounce(1).setCollideWorldBounds(true).setVelocity(-200,-200).setOrigin(0.5,0.5);
             
             // procedural logo
             // no tweens because then i would have to match up all of these shapes and the time constraint does not allow for it at present time
@@ -554,7 +554,7 @@
         physics: {
             default: "arcade",
             arcade: {
-            gravity: { y: 0 } // Top down game, so no gravity
+            gravity: { y: 0 }, // Top down game, so no gravity
             },
         },
         // scene: [Credits, Transition1, Transition2, End, Transition3,  , Cinematic, Gameplay, Inventory, Statistics]
