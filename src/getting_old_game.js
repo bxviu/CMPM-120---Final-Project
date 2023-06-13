@@ -121,90 +121,54 @@
             });
         }
     }
-    class Achievements extends Phaser.Scene
+    class End extends Phaser.Scene
     {   
         totalSteps = 20;
         totalMems = 7;
         totalTime = 100;
         constructor() {
-            super('achievements')
+            super('end')
         }
-        init (data)
-        {
-            this.data = Object.keys(data).length === 0 ? {limit: 90} : data;
-        }
+        
         create ()
         {
             this.w = this.game.config.width;
             this.h = this.game.config.height;
 
-            const text = this.add.text(this.w/2, this.h*1/8, "Statistics");
-            text.setOrigin(0.5);
-            text.setFontSize(this.w/20);
-            text.setTint(0x000000);  
+            this.label = this.add.text(100, 100, '')
+    		.setWordWrapWidth(this.w*14/16)
+            .setFontSize(this.w/20)
+            .setTint(0x869d4d)
 
-            const stepsText1 = this.add.text(this.w/12, this.h*1/4, 'Steps walked ');
-            stepsText1.setFontSize(this.w/40);
-            stepsText1.setTint(0x000000);  
-
-            const stepsText2 = this.add.text(this.w*4/5, this.h*1/4, this.totalSteps);
-            stepsText2.setFontSize(this.w/40);
-            stepsText2.setTint(0x000000);
-
-            const memsText1 = this.add.text(this.w/12, this.h*5/16, 'Memories examined');
-            memsText1.setFontSize(this.w/40);
-            memsText1.setTint(0xFFFFFF);  
-
-            const memsText2 = this.add.text(this.w*4/5, this.h*5/16, this.totalMems);
-            memsText2.setFontSize(this.w/40);
-            memsText2.setTint(0xFFFFFF);
-
-            const timeText1 = this.add.text(this.w/12, this.h*6/16, 'Total Time Spent');
-            timeText1.setFontSize(this.w/40);
-            timeText1.setTint(0x000000);  
-
-            const timeText2 = this.add.text(this.w*4/5, this.h*6/16, this.totalTime + " min");
-            timeText2.setFontSize(this.w/40);
-            timeText2.setTint(0x000000);
-
+    	    this.typewriteTextWrapped('I wonder.... \nWhat else is out there???\n\nThe End')
 
 
             this.input.on('pointerdown', () => {
                 this.cameras.main.fade(1000, 0,0,0);
-                this.time.delayedCall(1000, () => this.scene.start('end', this.data));
+                this.time.delayedCall(1000, () => this.scene.start('credits'));
             });
         }
+        typewriteText(text)
+        {
+            const length = text.length
+            let i = 0
+            this.time.addEvent({
+                callback: () => {
+                    this.label.text += text[i]
+                    ++i
+                },
+                repeat: length - 1,
+                delay: 200
+            })
+        }
+        typewriteTextWrapped(text)
+        {
+            const lines = this.label.getWrappedText(text)
+            const wrappedText = lines.join('\n')
+
+            this.typewriteText(wrappedText)
+        }
     }
-
-    // class End extends HelperScene
-    // {   
-    //     totalSteps = 20;
-    //     totalMems = 7;
-    //     totalTime = 100;
-    //     constructor() {
-    //         super('end')
-    //     }
-    //     create ()
-    //     {
-    //         this.w = this.game.config.width;
-    //         this.h = this.game.config.height;
-
-
-
-    //         this.label = this.add.text(100, 100, '')
-    // 		.setWordWrapWidth(this.w*14/16)
-    //         .setFontSize(this.w/20)
-    //         .setTint(0x000000)
-
-    // 	    this.typewriteTextWrapped('I wonder.... \nWhat else is out there???\n\nThe End')
-
-
-    //         this.input.on('pointerdown', () => {
-    //             this.cameras.main.fade(1000, 0,0,0);
-    //             this.time.delayedCall(1000, () => this.scene.start('credits'));
-    //         });
-    //     }
-    // }
     class Credits extends Phaser.Scene
     {   
         constructor() {
@@ -241,9 +205,9 @@
             text4.setFontSize(this.w/35);
             text4.setTint(0x869d4d);
 
-            const text5 = this.add.text(this.w/12, this.h*8/16, 'Backup Testing');
-            text5.setFontSize(this.w/35);
-            text5.setTint(0x869d4d);
+            // const text5 = this.add.text(this.w/12, this.h*8/16, 'Backup Testing');
+            // text5.setFontSize(this.w/35);
+            // text5.setTint(0x869d4d);
 
             
             const text12 = this.add.text(this.w*6.5/10, -50, "Benthan Vu");
@@ -338,13 +302,13 @@
         {
             window.visits ++;
             if(window.visits == 1){
-                this.time.delayedCall(1000, () => this.scene.start('transition2', this.data));
+                this.time.delayedCall(1000, () => this.scene.start('credits', this.data));
             }
             if(window.visits == 2){
                 this.time.delayedCall(1000, () => this.scene.start('transition3', this.data));
             }
             if(window.visits == 3){
-                this.time.delayedCall(1000, () => this.scene.start('credits', this.data));
+                this.time.delayedCall(1000, () => this.scene.start('end', this.data));
             }
         }
     }
@@ -363,8 +327,8 @@
             arcade: {
             gravity: { y: 0 } // Top down game, so no gravity
             },
-        },// End,
-        scene: [Title, Transition1, Transition2, Transition3, Achievements,  Credits, Cinematic, Gameplay, Inventory, Statistics]
+        },
+        scene: [Title, Transition1, Transition2, End, Transition3,  Credits, Cinematic, Gameplay, Inventory, Statistics]
     };
 
     const game = new Phaser.Game(config);
