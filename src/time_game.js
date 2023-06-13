@@ -75,7 +75,8 @@ class Gameplay extends Phaser.Scene
 
         this.player = (new Player(this, 0, 145, 'InputName', {speed:50+(25*(3 - this.level)), items:this.playerItems}));
         console.log(this.player.speed)
-        const map = this.make.tilemap({ key: "map" });
+
+        this.cameras.main.fadeIn(500, 0, 0, 0)
         this.player.setAlpha(0);
         this.player.play("sideways");
         this.tweens.add({
@@ -88,6 +89,8 @@ class Gameplay extends Phaser.Scene
                 this.sceneDuration = 0;
             }
         })
+
+        const map = this.make.tilemap({ key: "map" });
 
         // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
         // Phaser's cache (i.e. the name you used in preload)
@@ -208,7 +211,7 @@ class Gameplay extends Phaser.Scene
             plinkNoise.play();
             this.time.delayedCall(300, () => {
                 this.scene.pause('gameplay');
-                this.scene.launch('inventory', {items:this.player.items});
+                this.scene.launch('inventory', {items:this.player.items, nextScene: 'gameplay'});
             });
         })
         .on('pointerover', () => {
@@ -441,26 +444,32 @@ class Gameplay extends Phaser.Scene
             this.timerDisplay.setText("Time: " + (this.totaltime-this.sceneDuration/1000).toFixed(2) + "s");
         }
         else if (this.sceneDuration != -1000 && this.totaltime-this.sceneDuration/1000 <= 0) {
-            this.sceneDuration = -1000;
-            this.timerDisplay.setText("Time: 0.00s");
-            if (this.level < 3) {
-                //time limit for the next level
-                let limit = 5;
-                if (this.level == 1) {
-                    limit = 10;
-                }
-                else if (this.level == 2) {
-                    limit = 10;
-                }
-                else if (this.level == 3) {
-                    limit = 10;
-                }
-                this.scene.start("statistics", {stats: this.stats, items: this.player.items, limit: limit, level: this.level + 1});
-            }
-            else {
-                this.scene.start("inventory", {stats: this.stats});
-            }
+            this.endLevel();
         }
+    }
+
+    endLevel() {
+        this.cameras.main.fade(1000, 0,0,0);
+        this.sceneDuration = -1000;
+        this.timerDisplay.setText("Time: 0.00s");
+        this.joyStick.setEnable(false);
+        this.inventoryButton.disableInteractive();
+        this.interactButton.disableInteractive();
+        this.onButton = true;
+        //time limit for the next level
+        let limit = 5;
+        if (this.level == 1) {
+            limit = 10;
+        }
+        else if (this.level == 2) {
+            limit = 10;
+        }
+        else if (this.level == 3) {
+            limit = 10;
+        }
+        this.time.delayedCall(1000, () => {
+            this.scene.start("statistics", {stats: this.stats, items: this.player.items, limit: limit, level: this.level + 1});
+        });
     }
 
     checkControls() {
@@ -626,22 +635,3 @@ class Item extends Entity
 
 }
 
-// const config = {
-//     type: Phaser.AUTO,
-//     width: 800,
-//     height: 600,
-//     backgroundColor: '#257098',
-//     scale: {
-//         mode: Phaser.Scale.FIT,
-//         autoCenter: Phaser.Scale.CENTER_BOTH,
-//     },
-//     physics: {
-//         default: "arcade",
-//         arcade: {
-//           gravity: { y: 0 } // Top down game, so no gravity
-//         },
-//     },
-//     scene: [Gameplay, Inventory]
-// };
-
-// const game = new Phaser.Game(config);
