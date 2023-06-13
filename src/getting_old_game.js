@@ -9,7 +9,7 @@
         }
         init (data)
         {
-            this.data = Object.keys(data).length === 0 ? {limit: 30} : data;
+            this.data = Object.keys(data).length === 0 ? {limit: 60} : data;
         }
         create ()
         {
@@ -302,7 +302,7 @@
         {
             window.visits ++;
             if(window.visits == 1){
-                this.time.delayedCall(1000, () => this.scene.start('credits', this.data));
+                this.time.delayedCall(1000, () => this.scene.start('transition2', this.data));
             }
             if(window.visits == 2){
                 this.time.delayedCall(1000, () => this.scene.start('transition3', this.data));

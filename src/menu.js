@@ -9,10 +9,22 @@ class Menu extends Phaser.Scene {
         this.load.path = './assets/images/';
         this.load.image('box', 'box.png');
         this.load.image('boxBig', 'box-big.png');
-        this.load.image('item1', 'placeholder7-bow.png');
-        this.load.image('item2', 'placeholder6-arrow.png');        
+        // this.load.image('item1', 'placeholder7-bow.png');
+        // this.load.image('item2', 'placeholder6-arrow.png');        
         this.load.image('inventoryButton', 'inventoryButton.png');
         this.load.image('xButton', 'xButton.png');
+
+        this.load.path = './assets/items/';
+        this.load.image('book', 'Academic Book.png');
+        this.load.image('cap', 'Baseball Cap.png');
+        this.load.image('ball', 'Basketball.png');
+        this.load.image('bucketAndShovel', 'Bucket and Shovel.png');
+        this.load.image('flag', 'Flagpole.png');
+        this.load.image('leaves', 'Leaf Pile.png');
+        this.load.image('dog', 'Sleeping Dog.png');
+        this.load.image('tree', 'Special Tree.png');
+        this.load.image('swing', 'Swing.png');
+        this.load.image('boat', 'Toy Boat.png');
     }   
     create() {
         this.wholeContainer = this.add.container(400, -1000);
@@ -88,7 +100,7 @@ class Menu extends Phaser.Scene {
     addImage(x,y,key,config) {
         if (config == undefined) {
             config = {
-                scale: 0.125
+                scale: 1
             };
         }
         let displayImage = this.add.image(x, y, key);
@@ -188,7 +200,7 @@ class Inventory extends Menu {
         let descriptionBox = this.addBackgroundBox(-150,130,320,160,false,null,false).setDepth(11);
         let descriptionText = this.add.text(-150,140,"Click an item to view your memories about it", {wordWrap: { width: 300, useAdvancedWrap: true}}).setOrigin(0.5).setDepth(12);//250, 430, '').setDepth(12).setOrigin(0.5);
         let fullName = this.add.text(-150,80,"", {wordWrap: { width: 320, useAdvancedWrap: true}, font: "20px Arial", fill: "#000000", align: 'center'}).setOrigin(0.5).setDepth(12);//250, 430, '').setDepth(12).setOrigin(0.5);
-        let itemImage = this.add.image(-150, -80, "item1").setScale(0.5).setDepth(12).setOrigin(0.5).setAlpha(0);
+        let itemImage = this.add.image(-150, -80, "item1").setScale(5).setDepth(12).setOrigin(0.5).setAlpha(0);
 
         var scrollMode = 0; // 0:vertical, 1:horizontal
         this.gridTable = this.rexUI.add.gridTable({
@@ -211,7 +223,7 @@ class Inventory extends Menu {
                     padding: 2,
                 },
 
-                reuseCellContainer: true,
+                reuseCellContainer: false,
             },
 
             slider: {
@@ -274,7 +286,7 @@ class Inventory extends Menu {
                 // Set properties from item value
                 cellContainer.setMinSize(width, height); // Size might changed in this demo
                 cellContainer.getElement('text').setText(item.displayName); // Set text of text object
-                cellContainer.getElement('icon').setScale(0.1)
+                cellContainer.getElement('icon').setScale(0.5)
                 cellContainer.getElement('background').setStrokeStyle(2, COLOR_DARK).setDepth(0);
                 return cellContainer;
             },
@@ -433,59 +445,59 @@ class Statistics extends Menu {
             }
             this.addBackgroundBox(xVal,yVal,350,75, false, null, true );
             if (key == "ball") {
-                this.addImage(xVal+imageOffset,yVal, "item1", )
+                this.addImage(xVal+imageOffset,yVal, "ball", )
                 this.addText(xVal,yVal,"Ball Found: " + this.data.stats.ball,configSmall)
             }
             else if (key == "bucketAndShovel") {
-                this.addImage(xVal+imageOffset,yVal, "item2", )
+                this.addImage(xVal+imageOffset,yVal, "bucketAndShovel", )
                 this.addText(xVal+20,yVal,"Bucket and Shovel Found: " + this.data.stats.bucketAndShovel,configSmall)
             }
             else if (key == "leaves") {
-                this.addImage(xVal+imageOffset,yVal, "item3", )
-                this.addText(xVal,yVal,"Leaves Found: " + this.data.stats.leaves,configSmall)
+                this.addImage(xVal+imageOffset,yVal, "leaves", )
+                this.addText(xVal,yVal,"Leaf Pile Found: " + this.data.stats.leaves,configSmall)
             }
             else if (key == "book") {
-                this.addImage(xVal+imageOffset,yVal, "item4", )
+                this.addImage(xVal+imageOffset,yVal, "book", )
                 this.addText(xVal,yVal,"Book Found: " + this.data.stats.book,configSmall)
             }
             else if (key == "tree") {
-                this.addImage(xVal+imageOffset,yVal, "item5", )
+                this.addImage(xVal+imageOffset,yVal, "tree", )
                 this.addText(xVal,yVal,"Tree Found: " + this.data.stats.tree,configSmall)
             }
             else if (key == "swingset") {
-                this.addImage(xVal+imageOffset,yVal, "item6", )
+                this.addImage(xVal+imageOffset,yVal, "swing", )
                 this.addText(xVal,yVal,"Swingset Found: " + this.data.stats.swingset,configSmall)
             }
             else if (key == "boat") {
-                this.addImage(xVal+imageOffset,yVal, "item7", )
+                this.addImage(xVal+imageOffset,yVal, "boat", )
                 this.addText(xVal,yVal,"Boat Found: " + this.data.stats.boat,configSmall)
             }
             else if (key == "flag") {
-                this.addImage(xVal+imageOffset,yVal, "item8", )
+                this.addImage(xVal+imageOffset,yVal, "flag", )
                 this.addText(xVal,yVal,"Flag Found: " + this.data.stats.flag,configSmall)
             }
             else if (key == "cap") {
-                this.addImage(xVal+imageOffset,yVal, "item9", )
+                this.addImage(xVal+imageOffset,yVal, "cap", )
                 this.addText(xVal,yVal,"Baseball Cap Found: " + this.data.stats.cap,configSmall)
             }
             else if (key == "dog") {
-                this.addImage(xVal+imageOffset,yVal, "item10", )
+                this.addImage(xVal+imageOffset,yVal, "dog", )
                 this.addText(xVal,yVal,"Dog Found: " + this.data.stats.dog,configSmall)
             }
-            if (count > 3) {
-                yVal = -65;
-                count = 0;
-            }
-            else {
+            // if (count > 5) {
+            //     yVal = -65;
+            //     count = 0;
+            // }
+            // else {
                 if (xVal == 180){
                     xVal = -180;
+                    yVal += yDelta;
                 }
                 else {
                     xVal = 180;
                 }
-                count++;
-                yVal += yDelta;
-            }
+                // count++;
+            // }
         }
 
         if (xVal == -180 && yVal == -65) {

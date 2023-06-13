@@ -3,7 +3,7 @@
         "displayName": "Basketball",
         "fullName": "Heavily Used Basketball",
         "description": "Times playing with friends.\nTime spent testing each other.\nTime meant for becoming stronger.",
-        "imageKey": "item1",
+        "imageKey": "ball",
         "coordinates":
             {
                 "x": 68,
@@ -14,7 +14,7 @@
         "displayName": "Bucket & Shovel",
         "fullName": "Worn Bucket and Chipped Shovel",
         "description": "Times sculpting sand in sun\nTime making imagination a reality\nTimes defending your castle from a watery grave",
-        "imageKey": "item2",
+        "imageKey": "bucketAndShovel",
         "coordinates":
             {
                 "x": 692,
@@ -25,7 +25,7 @@
         "displayName": "Leaf Pile",
         "fullName": "Great Pile of Leaves",
         "description": "Times sailing into the sea of leaves\nTimes made with funny friends and goofy laughs\nTimes when jumping high was pretty fly",
-        "imageKey": "item2",
+        "imageKey": "leaves",
         "coordinates":
             {
                 "x": 425,
@@ -36,7 +36,7 @@
         "displayName": "Academic Book",
         "fullName": "P-Adic Numbers, P-Adic Analysis, and Zeta-Functions",
         "description": "Times the teacher tried to teach\nTime taken by the cursed math problems\nTimes of triumph after your tests",
-        "imageKey": "item2",
+        "imageKey": "book",
         "coordinates":
             {
                 "x": 290,
@@ -58,7 +58,7 @@
         "displayName": "Swingset",
         "fullName": "Large Metal Swingset",
         "description": "Times made flying high into the sky\nTime spent feeling the cool breeze\nTime spent pushing one another",
-        "imageKey": "item2",
+        "imageKey": "swing",
         "coordinates":
             {
                 "x": 400,
@@ -69,7 +69,7 @@
         "displayName": "Toy Boat",
         "fullName": "Simple Plastic Toy Boat",
         "description": "Time used to perfect your vessel\nTime played racing each other\nTime spent trying to get your boat back",
-        "imageKey": "item2",
+        "imageKey": "boat",
         "coordinates":
             {
                 "x": 768,
@@ -80,7 +80,7 @@
         "displayName": "Flagpole",
         "fullName": "Townname Flag",
         "description": "Time spent remembering where we are\nTime spent ringing around the rosie\nTimes thinking about the flag in the sky",
-        "imageKey": "item2",
+        "imageKey": "flag",
         "coordinates":
             {
                 "x": 502,
@@ -89,9 +89,9 @@
     },
     "cap": {
         "displayName": "Baseball Cap",
-        "fullName": "Small Blue Baseball Cap",
+        "fullName": "Small Red Baseball Cap",
         "description": "Time spent hanging out with Dad\nTime spent playing catch\nTime spent watching others play",
-        "imageKey": "item2",
+        "imageKey": "cap",
         "coordinates":
             {
                 "x": 209,
@@ -99,10 +99,10 @@
             }
     },
     "dog": {
-        "displayName": "Sitting Dog",
+        "displayName": "Sleeping Dog",
         "fullName": "Doggo",
         "description": "Time spent running around\nTimes feeding the good boy\nTimes training new tricks",
-        "imageKey": "item2",
+        "imageKey": "dog",
         "coordinates":
             {
                 "x": 867,

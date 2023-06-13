@@ -16,7 +16,8 @@ class Gameplay extends Phaser.Scene
 
     preload() {
         this.load.plugin('rexvirtualjoystickplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js', true);
-        
+        this.load.plugin('rexgrayscalepipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexgrayscalepipelineplugin.min.js', true);
+
         this.load.path = './data/';
         this.load.tilemapTiledJSON("map", "Getting_Old_Tilemap_large_v1.1.1.json");
 
@@ -24,8 +25,8 @@ class Gameplay extends Phaser.Scene
         this.load.image("tiles", "First Asset pack.png");
 
         this.load.path = './assets/images/';
-        this.load.image('item1', 'placeholder7-bow.png');
-        this.load.image('item2', 'placeholder6-arrow.png');
+        // this.load.image('item1', 'placeholder7-bow.png');
+        // this.load.image('item2', 'placeholder6-arrow.png');
         this.load.image('arrow', 'movementArrow.png');
         this.load.image('joystickBase', 'joystickBase.png');
         this.load.image('interactButton', 'interactButton.png');
@@ -33,6 +34,18 @@ class Gameplay extends Phaser.Scene
         this.load.image('settingsButton', 'settingsButton.png');
         this.load.image('box', 'box.png');
         this.load.image('boxBig', 'box-big.png');
+
+        this.load.path = './assets/items/';
+        this.load.image('book', 'Academic Book.png');
+        this.load.image('cap', 'Baseball Cap.png');
+        this.load.image('ball', 'Basketball.png');
+        this.load.image('bucketAndShovel', 'Bucket and Shovel.png');
+        this.load.image('flag', 'Flagpole.png');
+        this.load.image('leaves', 'Leaf Pile.png');
+        this.load.image('dog', 'Sleeping Dog.png');
+        this.load.image('tree', 'Special Tree.png');
+        this.load.image('swing', 'Swing.png');
+        this.load.image('boat', 'Toy Boat.png');
         
         this.load.path = './assets/images/character/';
         this.load.spritesheet('playerRight', 'ACharRight.png', { frameWidth: 13, frameHeight: 18 });
@@ -171,7 +184,7 @@ class Gameplay extends Phaser.Scene
                     displayName:currentItem["displayName"], 
                     fullName:currentItem["fullName"], 
                     description:currentItem["description"],
-                    scale:0.05,
+                    scale:0.5,
                 }));
         }
     }
@@ -263,19 +276,36 @@ class Gameplay extends Phaser.Scene
                             this.stats[item.name] += 1;
                         }
                         this.stats.totalItems += 1;
+
                         plinkNoise.play();
+                        
+                        let itemConfig = {
+                            name:item.name, 
+                            fullName:item.fullName,
+                            displayName:item.displayName,
+                            imageKey:item.imageKey,
+                            description:item.description
+                        }
+
                         if (!this.player.checkItem(item, this.player.items)) {
                             if (this.player.items.length == 0) {
                                 this.playInventoryTutorial();
                             }
-                            this.player.gainItem({
-                                name:item.name, 
-                                fullName:item.fullName,
-                                displayName:item.displayName,
-                                imageKey:item.imageKey,
-                                description:item.description
-                            });
+                            //interacted with item for the first time
+                            this.player.gainItem(itemConfig, false);                            
                         }
+                        // this means they have interacted with the item in this current level
+                        this.player.gainItem(itemConfig, true);
+                        item.animation.destroy();
+                        //animate item fading away
+                        item.glow.setActive(false);
+                        this.tweens.add({
+                            targets: item,
+                            alpha: 0.25,
+                            duration: 1000,
+                            ease: 'Power2',
+                        });
+
                         //rotate and scale the inventory button
                         this.tweens.add({
                             targets: this.inventoryButton,
@@ -491,14 +521,16 @@ class Gameplay extends Phaser.Scene
         this.interactButton.disableInteractive();
         this.pauseMovement = true;
         //time limit for the next level
+        //change time limit for the first level in Title class init(data) function
         let limit = 5;
         if (this.level == 1) {
-            limit = 60;
+            limit = 45;
         }
         else if (this.level == 2) {
-            limit = 90;
+            limit = 30;
         }
         else if (this.level == 3) {
+            // this one shouldn't happen
             limit = 10;
         }
         this.time.delayedCall(1000, () => {
@@ -582,7 +614,7 @@ class Gameplay extends Phaser.Scene
 
         if (this.useInteractTutorial) {
             this.items.forEach(item => {
-                if (Phaser.Math.Distance.Between(this.player.x, this.player.y, item.x, item.y) < 100) {
+                if (Phaser.Math.Distance.Between(this.player.x, this.player.y, item.x, item.y) < 80) {
                     this.useInteractTutorial = false;
                     this.playInteractTutorial();
                 }
@@ -653,93 +685,6 @@ class Gameplay extends Phaser.Scene
             });
         });
 
-        // this.input.once('pointerdown', () => {
-        //     console.log(tutorialPart);
-        //     if (this.pauseMovement) {
-        //         tutorialPart++;
-        //         if (tutorialPart == 1) {
-        //             this.animateOut(tutArrow);
-        //             this.animateOut(box);
-        //             tutArrow2 = this.add.image(360, 350, 'arrow').setDepth(5).setScale(0.25).setScrollFactor(0).setRotation(-Math.PI/2);
-        //             this.animateArrow(tutArrow2);
-        //             box2 = this.addTextBox(400,700,"Use this joystick to move around");
-        //             this.animateBox(box2);
-        //         }
-        //         else if (tutorialPart == 2) {
-        //             this.animateOut(tutArrow2);
-        //             this.animateOut(box2);
-        //             tutArrow3 = this.add.image(490, 215, 'arrow').setDepth(5).setScale(0.25).setScrollFactor(0).setRotation(Math.PI/2);
-        //             this.animateArrow(tutArrow3);
-        //             box3 = this.addTextBox(400,700,"Use this to access settings,\nwhere you can mute the music\nand toggle fullscreen");
-        //             this.animateBox(box3);
-        //         }
-        //         else if (tutorialPart == 3) {
-        //             this.animateOut(tutArrow3);
-        //             this.animateOut(box3); 
-        //             box4 = this.addTextBox(400,700,"Walk around and find some items\nbefore the time runs out!");
-        //             this.animateBox(box4);
-        //         }
-        //         else if (tutorialPart == 4) {
-        //             this.animateOut(box4);
-        //             box5 = this.addTextBox(400,700,"You can also click and drag the map\nto look around and pause the timer.");
-        //             this.animateBox(box5);
-        //         }
-        //         else if (tutorialPart == 5) {
-        //             this.animateOut(box5);
-        //             this.joyStick.setEnable(true);
-        //             this.pauseMovement = false;
-        //             this.timer = false;
-        //             this.addMapDragging();
-        //         }
-        //     }
-        // });
-
-
-        // this.time.delayedCall(3000, () => {  
-        //     this.animateOut(tutArrow);
-        //     this.animateOut(box);
-        //     let tutArrow2 = this.add.image(360, 350, 'arrow').setDepth(5).setScale(0.25).setScrollFactor(0).setRotation(-Math.PI/2);
-        //     this.animateArrow(tutArrow2);
-        //     let box2 = this.addTextBox(400,700,"Use this joystick to move around");
-        //     this.animateBox(box2);
-
-        //     this.time.delayedCall(3000, () => {  
-        //         this.animateOut(tutArrow2);
-        //         this.animateOut(box2);
-        //         let tutArrow3 = this.add.image(490, 215, 'arrow').setDepth(5).setScale(0.25).setScrollFactor(0).setRotation(Math.PI/2);
-        //         this.animateArrow(tutArrow3);
-        //         let box3 = this.addTextBox(400,700,"Use this to access settings,\nwhere you can mute the music\nand toggle fullscreen");
-        //         this.animateBox(box3);
-
-        //         this.time.delayedCall(3000, () => {  
-        //             this.animateOut(tutArrow3);
-        //             this.animateOut(box3); 
-        //             let box4 = this.addTextBox(400,700,"Walk around and find some items\nbefore the time runs out!");
-        //             this.animateBox(box4);
-
-        //             this.time.delayedCall(3000, () => {  
-        //                 this.joyStick.setEnable(true);
-        //                 this.pauseMovement = false;
-        //                 this.animateOut(box4);
-
-        //                 this.time.delayedCall(3000, () => {  
-        //                     let box5 = this.addTextBox(400,700,"You can also click and drag the map\nto look around and pause the timer.");
-        //                     this.animateBox(box5);
-        //                     this.joyStick.setEnable(false);
-        //                     this.pauseMovement = true;
-        //                     this.timer = false;
-
-        //                     this.time.delayedCall(4000, () => {  
-        //                         this.addMapDragging();
-        //                         this.joyStick.setEnable(true);
-        //                         this.pauseMovement = false;
-        //                         this.animateOut(box5);
-        //                     })
-        //                 })
-        //             })
-        //         })
-        //     })
-        // })
     }
 
     playInteractTutorial() {
@@ -908,6 +853,17 @@ class Player extends Entity
         this.speed = config.speed || 100;
         this.body.setSize(this.width-5, this.height-10);
         this.body.setOffset(2.5, 5);
+
+        if (scene.level == 2) {
+            scene.plugins.get('rexgrayscalepipelineplugin').add(this, {
+                intensity: 0.5,
+            });
+        }
+        else if (scene.level == 3) {
+            scene.plugins.get('rexgrayscalepipelineplugin').add(this, {
+                intensity: 1,
+            });
+        }
     }
 
     createAnimations() {
@@ -946,12 +902,18 @@ class Player extends Entity
         }
     }
 
-    gainItem(item) {
-        this.items.push(item);
-        this.interacted.push(item);
+    gainItem(item, save) {
+        if (save) {
+            this.interacted.push(item);
+        }
+        else {
+            this.items.push(item);
+        }
     }
 
     checkItem(checkItem, checkList) {
+        console.log(checkItem)
+        console.log(checkList)
         let bruh = false;
         checkList.forEach(item => {
             if (item.name == checkItem.name)
@@ -969,7 +931,7 @@ class Item extends Entity
         this.description = config.description || "No description";
         this.fullName = config.fullName || name;
         this.glow = this.preFX.addGlow(0xEADDCA);
-        scene.tweens.add({
+        this.animation = scene.tweens.add({
             targets:this,
             y: "+=2",
             duration: 1000,
