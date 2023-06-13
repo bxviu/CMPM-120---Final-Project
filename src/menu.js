@@ -162,10 +162,6 @@ class Inventory extends Menu {
     preload() {
         super.preload();
         this.load.scenePlugin('rexuiplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', 'rexUI', 'rexUI');
-        // this.load.path = './assets/images/';
-        // this.load.image('item1', 'placeholder7-bow.png');
-        // this.load.image('item2', 'placeholder6-arrow.png');
-        // this.load.image('box', 'box.png');
     }
     init(data) {
         console.log(data.items);
@@ -174,12 +170,7 @@ class Inventory extends Menu {
     }
     create() {
         this.wholeContainer = this.add.container(400, -400);
-        // super.create()
-        // this.addText(0, -175, "Inventory", {font: "100px Arial", fill: "#000000", align: 'center'});
-        // let box = this.addClickBox(0, 100, "Back", {font: "50px Arial", fill: "#ff0000", align: 'center'});
         this.currentScene = 'inventory';
-        // this.nextScene = 'gameplay';
-        // this.animateIn(500, box, "inventory", "intro", {resume: true, animateX: 400, animateY: -400});
         this.makeMenu();
         this.wholeContainer.setDepth(10);
         this.scene.bringToTop('inventory');

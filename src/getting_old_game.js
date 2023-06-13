@@ -6,7 +6,7 @@ class Cinematic extends Phaser.Scene {
 
     init (data)
     {
-        this.data = Object.keys(data).length === 0 ? {limit: 10} : data;
+        this.data = Object.keys(data).length === 0 ? {limit: 90} : data;
     }
     create ()
     {

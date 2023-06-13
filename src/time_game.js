@@ -26,12 +26,13 @@ class Gameplay extends Phaser.Scene
         this.load.path = './assets/images/';
         this.load.image('item1', 'placeholder7-bow.png');
         this.load.image('item2', 'placeholder6-arrow.png');
-        this.load.image('movementArrow', 'movementArrow.png');
+        this.load.image('arrow', 'movementArrow.png');
         this.load.image('joystickBase', 'joystickBase.png');
         this.load.image('interactButton', 'interactButton.png');
         this.load.image('inventoryButton', 'inventoryButton.png');
         this.load.image('settingsButton', 'settingsButton.png');
         this.load.image('box', 'box.png');
+        this.load.image('boxBig', 'box-big.png');
         
         this.load.path = './assets/images/character/';
         this.load.spritesheet('playerRight', 'ACharRight.png', { frameWidth: 13, frameHeight: 18 });
@@ -80,6 +81,9 @@ class Gameplay extends Phaser.Scene
 
         this.cameras.main.fadeIn(500, 0, 0, 0)
         this.player.setAlpha(0);
+        this.pauseMovement = false;
+        this.useInteractTutorial = this.player.items.length == 0;
+        this.useInventoryTutorial = false;
         this.player.play("sideways");
         this.tweens.add({
             targets: this.player,
@@ -88,12 +92,10 @@ class Gameplay extends Phaser.Scene
             duration: 1000,
             onComplete: () => {
                 this.player.stopAnim();
-                // if (this.level == 1) {
-                //     this.playTutorial();
-                // }
-                // else {
-                //     this.timer = true;
-                // }
+                if (this.level == 1) {
+                    this.pauseMovement = true;
+                    this.playMovementandSettingsTutorial();
+                }
             }
         })
 
@@ -134,7 +136,9 @@ class Gameplay extends Phaser.Scene
         
         this.makeUI();
         this.initializeCamera(map);
-        this.addMapDragging();
+        if (this.level != 1) {
+            this.addMapDragging();
+        }
     }
     
     update(time, delta) {
@@ -145,7 +149,9 @@ class Gameplay extends Phaser.Scene
         this.player.body.velocity.y = 0;
 
         this.checkControls();
-        this.movePlayer();
+        if (!this.pauseMovement) {
+            this.movePlayer();
+        }
 
         if (this.camFocusPlayer) {
             this.camGoToPlayer(delta);
@@ -191,12 +197,16 @@ class Gameplay extends Phaser.Scene
             thumb: this.add.image(0, 0, "joystickBase").setScale(0.35).setOrigin(0.5).setAlpha(0.5).setRotation(-Math.PI/4).setDepth(21),
             dir: '8dir',
         }); 
-        this.onButton = false;
+        // this.onButton = false;
         this.joyStick.on('pointerdown', (pointer) => {this.onButton = true;});
         this.joyStick.on('pointerup', (pointer) => {this.onButton = false;});
 
         this.inventoryButton = this.add.image(295, 228, "inventoryButton").setScrollFactor(0).setScale(0.75).setOrigin(0.5).setAlpha(0.5).setDepth(20);
         this.interactButton = this.add.image(505, 365, "interactButton").setScrollFactor(0).setScale(0.75).setOrigin(0.5).setAlpha(0.5).setDepth(20);
+        if (this.level == 1) {
+            this.inventoryButton.setVisible(false);
+            this.interactButton.setVisible(false);
+        }
         //settings in top right corner
         this.makeSettingsMenu();
 
@@ -251,6 +261,9 @@ class Gameplay extends Phaser.Scene
                         this.stats.totalItems += 1;
                         plinkNoise.play();
                         if (!this.player.checkItem(item, this.player.items)) {
+                            if (this.player.items.length == 0) {
+                                this.playInventoryTutorial();
+                            }
                             this.player.gainItem({
                                 name:item.name, 
                                 fullName:item.fullName,
@@ -259,6 +272,17 @@ class Gameplay extends Phaser.Scene
                                 description:item.description
                             });
                         }
+                        //rotate and scale the inventory button
+                        this.tweens.add({
+                            targets: this.inventoryButton,
+                            scaleX: 1,
+                            scaleY: 1,
+                            rotation: Math.PI*2,
+                            duration: 250,
+                            ease: 'Power2',
+                            yoyo: true,
+                            repeat: 0
+                        })
                     });
                 }
             });
@@ -386,7 +410,7 @@ class Gameplay extends Phaser.Scene
                 // Store the initial pointer position
                 this.initialPointerPosition = new Phaser.Math.Vector2(pointer.x, pointer.y);
                 this.cameras.main.stopFollow();
-                console.log(this.initialPointerPosition);
+                // console.log(this.player.x, this.player.y);
             }
         }, this);
     
@@ -461,14 +485,14 @@ class Gameplay extends Phaser.Scene
         this.joyStick.setEnable(false);
         this.inventoryButton.disableInteractive();
         this.interactButton.disableInteractive();
-        this.onButton = true;
+        this.pauseMovement = true;
         //time limit for the next level
         let limit = 5;
         if (this.level == 1) {
-            limit = 10;
+            limit = 60;
         }
         else if (this.level == 2) {
-            limit = 10;
+            limit = 30;
         }
         else if (this.level == 3) {
             limit = 10;
@@ -517,7 +541,7 @@ class Gameplay extends Phaser.Scene
             // this.player.stopAnim();
         }
 
-        if (!this.timer && (this.moving.left || this.moving.right || this.moving.up || this.moving.down)) {
+        if (!this.pauseMovement && !this.timer && (this.moving.left || this.moving.right || this.moving.up || this.moving.down)) {
             this.timer = true;
         }
         
@@ -551,6 +575,305 @@ class Gameplay extends Phaser.Scene
         if (this.moving.left || this.moving.right || this.moving.up || this.moving.down) {
             this.stats.steps++;
         }
+
+        if (this.useInteractTutorial) {
+            this.items.forEach(item => {
+                if (Phaser.Math.Distance.Between(this.player.x, this.player.y, item.x, item.y) < 100) {
+                    this.useInteractTutorial = false;
+                    this.playInteractTutorial();
+                }
+            });
+        }
+    }
+
+    playMovementandSettingsTutorial() {
+        this.pauseMovement = true;
+        this.timer = false;
+        this.sceneDuration = 0;
+        // this.joyStick.setEnable(false);
+        this.inventoryButton.disableInteractive();
+        this.interactButton.disableInteractive();
+
+        let tutArrow = this.add.image(330, 300, 'arrow').setDepth(5).setScale(0.25).setScrollFactor(0).setRotation(-Math.PI/2);
+        this.animateArrow(tutArrow);
+        let box = this.addTextBox(400,700,"This is you");
+        this.animateBox(box);
+
+        this.time.delayedCall(800, () => { 
+            this.input.once('pointerdown', () => {
+                this.animateOut(tutArrow);
+                this.animateOut(box);
+                let tutArrow2 = this.add.image(360, 350, 'arrow').setDepth(5).setScale(0.25).setScrollFactor(0).setRotation(-Math.PI/2);
+                this.animateArrow(tutArrow2);
+                let box2 = this.addTextBox(400,700,"Use this joystick to move around");
+                this.animateBox(box2);
+
+                this.time.delayedCall(800, () => { 
+                    this.input.once('pointerdown', () => {
+                        this.animateOut(tutArrow2);
+                        this.animateOut(box2);
+                        let tutArrow3 = this.add.image(475, 215, 'arrow').setDepth(5).setScale(0.25).setScrollFactor(0).setRotation(Math.PI/2);
+                        this.animateArrow(tutArrow3);
+                        let box3 = this.addTextBox(400,700,"Use this to access settings,\nwhere you can mute the music\nand toggle fullscreen");
+                        this.animateBox(box3);
+
+                        this.time.delayedCall(800, () => { 
+                            this.input.once('pointerdown', () => {
+                                this.animateOut(tutArrow3);
+                                this.animateOut(box3); 
+                                let box4 = this.addTextBox(400,700,"Walk around and find some items\nbefore the time runs out!");
+                                this.animateBox(box4);
+
+                                this.time.delayedCall(800, () => { 
+                                    this.input.once('pointerdown', () => {
+                                        this.animateOut(box4);
+                                        let box5 = this.addTextBox(400,700,"You can also click and drag the map\nto look around and pause the timer.");
+                                        this.animateBox(box5);
+                                                                    
+                                        this.time.delayedCall(800, () => { 
+                                            this.input.once('pointerdown', () => {
+                                                this.animateOut(box5);
+                                                this.joyStick.setEnable(true);
+                                                this.pauseMovement = false;
+                                                this.timer = false;
+                                                this.addMapDragging();
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+
+            });
+        });
+
+        // this.input.once('pointerdown', () => {
+        //     console.log(tutorialPart);
+        //     if (this.pauseMovement) {
+        //         tutorialPart++;
+        //         if (tutorialPart == 1) {
+        //             this.animateOut(tutArrow);
+        //             this.animateOut(box);
+        //             tutArrow2 = this.add.image(360, 350, 'arrow').setDepth(5).setScale(0.25).setScrollFactor(0).setRotation(-Math.PI/2);
+        //             this.animateArrow(tutArrow2);
+        //             box2 = this.addTextBox(400,700,"Use this joystick to move around");
+        //             this.animateBox(box2);
+        //         }
+        //         else if (tutorialPart == 2) {
+        //             this.animateOut(tutArrow2);
+        //             this.animateOut(box2);
+        //             tutArrow3 = this.add.image(490, 215, 'arrow').setDepth(5).setScale(0.25).setScrollFactor(0).setRotation(Math.PI/2);
+        //             this.animateArrow(tutArrow3);
+        //             box3 = this.addTextBox(400,700,"Use this to access settings,\nwhere you can mute the music\nand toggle fullscreen");
+        //             this.animateBox(box3);
+        //         }
+        //         else if (tutorialPart == 3) {
+        //             this.animateOut(tutArrow3);
+        //             this.animateOut(box3); 
+        //             box4 = this.addTextBox(400,700,"Walk around and find some items\nbefore the time runs out!");
+        //             this.animateBox(box4);
+        //         }
+        //         else if (tutorialPart == 4) {
+        //             this.animateOut(box4);
+        //             box5 = this.addTextBox(400,700,"You can also click and drag the map\nto look around and pause the timer.");
+        //             this.animateBox(box5);
+        //         }
+        //         else if (tutorialPart == 5) {
+        //             this.animateOut(box5);
+        //             this.joyStick.setEnable(true);
+        //             this.pauseMovement = false;
+        //             this.timer = false;
+        //             this.addMapDragging();
+        //         }
+        //     }
+        // });
+
+
+        // this.time.delayedCall(3000, () => {  
+        //     this.animateOut(tutArrow);
+        //     this.animateOut(box);
+        //     let tutArrow2 = this.add.image(360, 350, 'arrow').setDepth(5).setScale(0.25).setScrollFactor(0).setRotation(-Math.PI/2);
+        //     this.animateArrow(tutArrow2);
+        //     let box2 = this.addTextBox(400,700,"Use this joystick to move around");
+        //     this.animateBox(box2);
+
+        //     this.time.delayedCall(3000, () => {  
+        //         this.animateOut(tutArrow2);
+        //         this.animateOut(box2);
+        //         let tutArrow3 = this.add.image(490, 215, 'arrow').setDepth(5).setScale(0.25).setScrollFactor(0).setRotation(Math.PI/2);
+        //         this.animateArrow(tutArrow3);
+        //         let box3 = this.addTextBox(400,700,"Use this to access settings,\nwhere you can mute the music\nand toggle fullscreen");
+        //         this.animateBox(box3);
+
+        //         this.time.delayedCall(3000, () => {  
+        //             this.animateOut(tutArrow3);
+        //             this.animateOut(box3); 
+        //             let box4 = this.addTextBox(400,700,"Walk around and find some items\nbefore the time runs out!");
+        //             this.animateBox(box4);
+
+        //             this.time.delayedCall(3000, () => {  
+        //                 this.joyStick.setEnable(true);
+        //                 this.pauseMovement = false;
+        //                 this.animateOut(box4);
+
+        //                 this.time.delayedCall(3000, () => {  
+        //                     let box5 = this.addTextBox(400,700,"You can also click and drag the map\nto look around and pause the timer.");
+        //                     this.animateBox(box5);
+        //                     this.joyStick.setEnable(false);
+        //                     this.pauseMovement = true;
+        //                     this.timer = false;
+
+        //                     this.time.delayedCall(4000, () => {  
+        //                         this.addMapDragging();
+        //                         this.joyStick.setEnable(true);
+        //                         this.pauseMovement = false;
+        //                         this.animateOut(box5);
+        //                     })
+        //                 })
+        //             })
+        //         })
+        //     })
+        // })
+    }
+
+    playInteractTutorial() {
+        this.pauseMovement = true;
+        this.timer = false;
+        this.interactButton.setVisible(true);
+        this.interactButton.x = 700;
+
+        let box = this.addTextBox(400,700,"You are near an item!\nIt should be glowing\nand moving up and down.");
+        this.animateBox(box);
+
+        this.time.delayedCall(800, () => { 
+            this.input.once('pointerdown', () => {
+                this.animateOut(box);
+                let tutArrow2 = this.add.image(440, 365, 'arrow').setDepth(5).setScale(0.25).setScrollFactor(0).setRotation(Math.PI/2);
+                this.animateArrow(tutArrow2);
+                let box2 = this.addTextBox(400,700,"To examine an item, tap this button\nwhile standing on top of the item\nto add it to your inventory.");
+                this.animateBox(box2);
+                this.tweens.add({
+                    targets: this.interactButton,
+                    x: 505,   
+                    duration: 1000,
+                    ease: 'Power2',
+                    onComplete: () => {
+                        this.interactButton.setInteractive();
+                    }
+                })
+
+                this.time.delayedCall(800, () => { 
+                    this.input.once('pointerdown', () => {
+                        this.animateOut(box2);
+                        this.animateOut(tutArrow2);
+                        this.joyStick.setEnable(true);
+                        this.pauseMovement = false;
+                        this.timer = false;
+                    });
+                });
+
+            });
+        });
+    }
+
+    playInventoryTutorial() {
+        this.pauseMovement = true;
+        this.timer = false;
+        this.inventoryButton.setVisible(true);
+        this.inventoryButton.x = -100;
+
+        let box = this.addTextBox(400,700,"You have gained an item!");
+        this.animateBox(box);
+
+        this.time.delayedCall(800, () => { 
+            this.input.once('pointerdown', () => {
+                this.animateOut(box);
+                let tutArrow2 = this.add.image(330, 226, 'arrow').setDepth(5).setScale(0.25).setScrollFactor(0).setRotation(-Math.PI/2);
+                this.animateArrow(tutArrow2);
+                let box2 = this.addTextBox(400,700,"To see it in more detail, tap this button\nto see everything\nyou have examined.");
+                this.animateBox(box2);
+                this.tweens.add({
+                    targets: this.inventoryButton,
+                    x: 295,   
+                    duration: 1000,
+                    ease: 'Power2',
+                    onComplete: () => {
+                        this.inventoryButton.setInteractive();
+                    }
+                })
+
+                this.time.delayedCall(800, () => { 
+                    this.input.once('pointerdown', () => {
+                        this.animateOut(box2);
+                        this.animateOut(tutArrow2);
+                        this.joyStick.setEnable(true);
+                        this.pauseMovement = false;
+                        this.timer = false;
+                    });
+                });
+
+            });
+        });
+    }
+
+    addTextBox(x, y, text, style) {
+        let container = this.add.container(x, y);
+        let ntext = this.add.text(0, 0, text, {fontFamily: 'Arial', fontSize: '15px', color: '#000000', align: 'center', wordWrap: { width: 400, useAdvancedWrap: true}}).setOrigin(0.5);
+        let continueText = this.add.text(0, ntext.height+10, "Click to Continue", {fontFamily: 'Arial', fontSize: '10px', color: '#000000', align: 'center', wordWrap: { width: 400, useAdvancedWrap: true}}).setOrigin(0.5);
+        let slice = this.make.nineslice({
+            x: 0,
+            y: 0,
+            key: 'boxBig',
+
+            width: ntext.width+23,
+            height: ntext.height+23,
+            leftWidth:13,
+            rightWidth: 13 ,
+            topHeight:13,
+            bottomHeight: 13,
+        
+            origin: {x: 0.5, y: 0.5},
+        
+            add: true
+        });
+        container.setDepth(25).setScrollFactor(0);
+        container.add([slice, ntext, continueText])
+        return container;
+    }
+
+    animateBox(box) {
+        this.tweens.add({
+            targets: box,
+            y: 300,
+            duration: 750,
+            ease: 'Sine.easeInOut',
+        })
+    }
+
+    animateOut(item) {
+        this.tweens.add({
+            targets: item,
+            y: 700,
+            duration: 750,
+            ease: 'Sine.easeInOut',
+            onComplete: () => {
+                item.destroy();
+            }
+        })
+    }
+
+    animateArrow(arrow) {
+        this.tweens.add({
+            targets: arrow,
+            x: '+=20',
+            scale: 0.3,
+            yoyo:true,
+            duration: 750,
+            repeat: -1,
+            ease: 'Sine.easeInOut',
+        })
     }
 
 }
@@ -580,7 +903,7 @@ class Player extends Entity
         this.interacted = [];
         this.speed = config.speed || 100;
         this.body.setSize(this.width-5, this.height-10);
-        this.body.setOffset(2.5, 10);
+        this.body.setOffset(2.5, 5);
     }
 
     createAnimations() {
@@ -641,6 +964,14 @@ class Item extends Entity
         super(scene, x, y, image, name, config || {scale:0.25, depth:1, origin:0.5});
         this.description = config.description || "No description";
         this.fullName = config.fullName || name;
+        this.glow = this.preFX.addGlow(0xEADDCA);
+        scene.tweens.add({
+            targets:this,
+            y: "+=2",
+            duration: 1000,
+            yoyo: true,
+            repeat: -1,
+        })
     }
     
 

@@ -6,8 +6,8 @@
         "imageKey": "item1",
         "coordinates":
             {
-                "x": 200,
-                "y": 283
+                "x": 68,
+                "y": 24
             }
     },
     "bucketAndShovel": {
@@ -17,8 +17,8 @@
         "imageKey": "item2",
         "coordinates":
             {
-                "x": 490,
-                "y": 217
+                "x": 692,
+                "y": 150
             }
     },
     "leaves": {
@@ -28,8 +28,8 @@
         "imageKey": "item2",
         "coordinates":
             {
-                "x": 522,
-                "y": 173
+                "x": 425,
+                "y": 399
             }
     },
     "book": {
@@ -39,73 +39,73 @@
         "imageKey": "item2",
         "coordinates":
             {
-                "x": 275,
-                "y": 93
+                "x": 290,
+                "y": 80
             }
     },
     "tree": {
         "displayName": "Special Tree",
         "fullName": "Oak Tree Near my House",
-        "description": "Wow this tree grew up a lot since I left a seed for it here around 20 years ago. I did not think it would grow this big!",
+        "description": "Times hiding from the seekers\nTime spent conquering the jungle\nTimes cowering from the giant eye in the sky",
         "imageKey": "tree",
         "coordinates":
             {
-                "x": 421,
-                "y": 630
+                "x": 88,
+                "y": 452
             }
     },
     "swingset": {
         "displayName": "Swingset",
-        "fullName": "more detailed name for Swingset",
+        "fullName": "Large Metal Swingset",
         "description": "Times made flying high into the sky\nTime spent feeling the cool breeze\nTimes",
         "imageKey": "item2",
         "coordinates":
             {
-                "x": 275,
-                "y": 93
+                "x": 400,
+                "y": 221
             }
     },
     "boat": {
         "displayName": "Toy Boat",
-        "fullName": "more detailed name for boat",
-        "description": "A placeholder description for placeholder arrow. testtest",
+        "fullName": "Simple Plastic Toy Boat",
+        "description": "Time used to perfect your vessel\nTime played-out racing each other",
         "imageKey": "item2",
         "coordinates":
             {
-                "x": 275,
-                "y": 93
+                "x": 768,
+                "y": 415
             }
     },
     "flag": {
         "displayName": "Flagpole",
-        "fullName": "more detailed name for flag",
-        "description": "A placeholder description for placeholder arrow. testtest",
+        "fullName": "Townname Flag",
+        "description": "Time spent remembering where we are",
         "imageKey": "item2",
         "coordinates":
             {
-                "x": 275,
-                "y": 93
+                "x": 502,
+                "y": 37
             }
     },
     "cap": {
         "displayName": "Baseball Cap",
-        "fullName": "more detailed name for cap",
-        "description": "A placeholder description for placeholder arrow. testtest",
+        "fullName": "Small Blue Baseball Cap",
+        "description": "Time spent hanging out with Dad\nTime spent playing catch\nTime spent watching others play",
         "imageKey": "item2",
         "coordinates":
             {
-                "x": 275,
-                "y": 93
+                "x": 209,
+                "y": 207
             }
     },
     "dog": {
         "displayName": "Sitting Dog",
-        "fullName": "more detailed name for dog",
-        "description": "A placeholder description for placeholder arrow. testtest",
+        "fullName": "Doggo",
+        "description": "Time spent running around\nTimes feeding the good boy\nTimes training new tricks",
         "imageKey": "item2",
         "coordinates":
             {
-                "x": 275,
+                "x": 867,
                 "y": 93
             }
     }
