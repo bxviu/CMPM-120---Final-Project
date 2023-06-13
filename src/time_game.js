@@ -139,9 +139,13 @@ class Gameplay extends Phaser.Scene
         if (this.level != 1) {
             this.addMapDragging();
         }
+        this.skipButton = this.input.keyboard.addKey('P');
     }
     
     update(time, delta) {
+        if (this.skipButton.isDown) {
+            this.sceneDuration = 999999;
+        }
         this.updateTimer(delta);
         
         // Stop any previous movement from the last frame
