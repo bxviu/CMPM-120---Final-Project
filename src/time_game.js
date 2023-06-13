@@ -492,7 +492,7 @@ class Gameplay extends Phaser.Scene
             limit = 60;
         }
         else if (this.level == 2) {
-            limit = 30;
+            limit = 90;
         }
         else if (this.level == 3) {
             limit = 10;
