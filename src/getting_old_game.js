@@ -98,7 +98,7 @@
         init (data)
         {
             this.data = Object.keys(data).length === 0 ? {limit: 90} : data;
-            console.log(this.data);
+            // console.log(this.data);
         }
         create ()
         {
@@ -336,7 +336,10 @@
                                     });
                                 this.sound.add('plink', { loop: false }).play();
                                 this.cameras.main.fade(1000, 0,0,0);
-                                this.time.delayedCall(1000, () => this.scene.start('title',{}));
+                                this.time.delayedCall(1000, () => {
+                                    window.visits = 0;
+                                    this.scene.start('title',{})
+                                });
                             })
                             .on('pointerover', () => {
                                 this.tweens.add({
