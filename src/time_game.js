@@ -997,7 +997,7 @@ class Player extends Entity
             frames: this.anims.generateFrameNumbers("playerRight", { start: 0, end: 3 }),
             delay: 0,
             duration: null,
-            frameRate: 4,
+            frameRate: 7,
             repeat: -1,
         });
 
@@ -1006,7 +1006,7 @@ class Player extends Entity
             frames: this.anims.generateFrameNumbers("playerUp", { start: 0, end: 3 }),
             delay: 0,
             duration: null,
-            frameRate: 4,
+            frameRate: 7,
             repeat: -1,
         });
 
@@ -1015,7 +1015,7 @@ class Player extends Entity
             frames: this.anims.generateFrameNumbers("playerDown", { start: 0, end: 3 }),
             delay: 0,
             duration: null,
-            frameRate: 4,
+            frameRate: 7,
             repeat: -1,
         });
     }
