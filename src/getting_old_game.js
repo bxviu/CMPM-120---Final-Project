@@ -64,12 +64,13 @@
                 this.time.delayedCall(1000, () => this.scene.start('transition1'));
             });
             inventory.on("pointerdown", ()=>{
-                this.cameras.main.fade(1000, 0,0,0);
-                this.time.delayedCall(1000, () => this.scene.start('transition2'));
+                // this.cameras.main.fade(1000, 0,0,0);
+                // this.time.delayedCall(1000, () => this.scene.start('transition2'));
+                window.open("https://cmpm-120-final---long-time-statistics.glitch.me/", "_blank");
             });
             credits.on("pointerdown", ()=>{
                 this.cameras.main.fade(1000, 0,0,0);
-                this.time.delayedCall(1000, () => this.scene.start('end'));
+                this.time.delayedCall(1000, () => this.scene.start('credits'));
             });
         }
     }
