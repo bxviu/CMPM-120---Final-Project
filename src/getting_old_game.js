@@ -44,13 +44,46 @@
             this.ballin=this.add.circle(circlePosX,circlePosY, 100, 0xffffff);
             this.physics.add.existing(this.ballin);
             this.ballin.body.setCircle(100).setGravity(0, 100).setBounce(1).setCollideWorldBounds(true).setVelocity(-200, -100);
+            
+            // procedural logo
+            // no tweens because then i would have to match up all of these shapes and the time constraint does not allow for it at present time
+            let logoX = 500;
+            let logoY = 100;
+            let logoColor = 0xEDC02C;
+            let word1X = logoX - 450;
+            let word1Y = logoY;
+            let word1Space = 100;
+            let word1 = {
+                l1: this.add.rectangle(word1X, word1Y-8, 20, 60, logoColor),
+                l2: this.add.rectangle(word1X + 20, word1Y + 30, 60, 20, logoColor),
+                o: this.add.circle(word1X + word1Space , word1Y, 40, logoColor),
+                n1: this.add.arc(word1X+word1Space*2, word1Y, 40, 0, 180, true, logoColor),
+                n2: this.add.rectangle(word1X+word1Space*2-28, word1Y+20, 25, 40, logoColor),
+                n3: this.add.rectangle(word1X+word1Space*2+28, word1Y+20, 25, 40, logoColor),
+                g1: this.add.circle(word1X+word1Space*3,word1Y, 40, logoColor),
+                g2: this.add.rectangle(word1X+word1Space*3+25, word1Y+35, 30, 60, logoColor),
+                g3: this.add.arc(word1X+word1Space*3+15, word1Y+65, 25, 0, 180, false, logoColor),
+            }
+            let word2X = logoX;
+            let word2Y = logoY;
+            let word2Space = 100;
+            let word2 = {
+                d1: this.add.arc(word2X, word2Y, 40, 90, 270, true, logoColor),
+                d2: this.add.rectangle(word2X-15, word2Y, 30, 80, logoColor),
+                a1: this.add.circle(word2X + word2Space, word2Y, 40, logoColor),
+                a2: this.add.rectangle(word2X+word2Space+20, word2Y+20, 40, 40, logoColor),
+                y1: this.add.arc(word2X+word2Space*2,word2Y,40, 0, 180, false, logoColor),
+                y2: this.add.rectangle(word2X+word2Space*2-28,word2Y-20,25,40,logoColor),
+                y3: this.add.rectangle(word2X+word2Space*2+28,word2Y-20,25,40,logoColor),
+                y4: this.add.rectangle(word2X+word2Space*2+28,word2Y+20,25,80,logoColor),
+                y5: this.add.arc(word2X+word2Space*2+15, word2Y+60, 25, 0, 180, false, logoColor),
+            }
+
             // text
-            const logo = this.add.text(400, 100, "Getting Old", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:100,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
             const start = this.add.text(400, 250, "Begin living", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5).setInteractive();
             const inventory = this.add.text(400, 300, "View your memories", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5).setInteractive();
             const credits = this.add.text(400, 350, "Credits", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5).setInteractive();
 
-            this.idleMotionTween(logo, 400, 100);
             this.idleMotionTween(start, 400, 250);
             this.idleMotionTween(inventory, 400, 300);
             this.idleMotionTween(credits, 400, 350);
