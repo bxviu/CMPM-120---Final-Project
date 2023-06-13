@@ -6,7 +6,7 @@ class Cinematic extends Phaser.Scene {
 
     init (data)
     {
-        this.data = Object.keys(data).length === 0 ? {limit: 90} : data;
+        this.data = Object.keys(data).length === 0 ? {limit: 30} : data;
     }
     create ()
     {
@@ -27,7 +27,12 @@ class Cinematic extends Phaser.Scene {
         console.log(this.data)
         this.input.on('pointerdown', () => {
             this.cameras.main.fade(1000, 0,0,0);
-            this.time.delayedCall(1000, () => this.scene.start('gameplay', this.data));
+            if (this.data.level >= 4) {
+                this.time.delayedCall(1000, () => this.scene.start('endcinematic', this.data));
+            } 
+            else {
+                this.time.delayedCall(1000, () => this.scene.start('gameplay', this.data));
+            }
         });
     }
 }

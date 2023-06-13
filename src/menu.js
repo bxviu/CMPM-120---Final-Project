@@ -474,10 +474,15 @@ class Statistics extends Menu {
             }
             if (count > 3) {
                 yVal = -65;
-                xVal = 180;
                 count = 0;
             }
             else {
+                if (xVal == 180){
+                    xVal = -180;
+                }
+                else {
+                    xVal = 180;
+                }
                 count++;
                 yVal += yDelta;
             }
@@ -494,7 +499,7 @@ class Statistics extends Menu {
 
 
         this.makeButtons();
-
+        //connect to cinematic here
         this.animateIn(1000, null, "statistics", "cinematic", this.data)
     }
 
@@ -561,8 +566,7 @@ class Statistics extends Menu {
         });
 
         this.wholeContainer.add([this.inventoryButton, this.xButton]);
-    }
-    
+    }    
 
     uploadStatistics(stats) {
         fetch('https://cmpm-120-final---long-time-statistics.glitch.me/', {

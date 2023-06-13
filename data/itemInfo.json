@@ -57,7 +57,7 @@
     "swingset": {
         "displayName": "Swingset",
         "fullName": "Large Metal Swingset",
-        "description": "Times made flying high into the sky\nTime spent feeling the cool breeze\nTimes",
+        "description": "Times made flying high into the sky\nTime spent feeling the cool breeze\nTime spent pushing one another",
         "imageKey": "item2",
         "coordinates":
             {
@@ -68,7 +68,7 @@
     "boat": {
         "displayName": "Toy Boat",
         "fullName": "Simple Plastic Toy Boat",
-        "description": "Time used to perfect your vessel\nTime played-out racing each other",
+        "description": "Time used to perfect your vessel\nTime played racing each other\nTime spent trying to get your boat back",
         "imageKey": "item2",
         "coordinates":
             {
@@ -79,7 +79,7 @@
     "flag": {
         "displayName": "Flagpole",
         "fullName": "Townname Flag",
-        "description": "Time spent remembering where we are",
+        "description": "Time spent remembering where we are\nTime spent ringing around the rosie\nTimes thinking about the flag in the sky",
         "imageKey": "item2",
         "coordinates":
             {
