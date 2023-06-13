@@ -23,23 +23,22 @@
         hoverInteract(text){
             text.on("pointerover",()=>{
                 text.setColor("#ffffff");
-                console.log("deez");
             })
             text.on("pointerout",()=>{
                 text.setColor("#EDC02C");
-                console.log("nuts");
             })
         }
         create ()
         {
             
-            this.add.rectangle(0, 0, 2000, 2000, 0xA2EEEB);
+            this.add.rectangle(0, 0, 2000, 2000, 0x785741);
             // example objects
             let recPosX = Phaser.Math.Between(100,700);
             let recPosY = Phaser.Math.Between(100,700);
             this.screensaver= this.add.rectangle(recPosX, recPosY, 200, 200, 0x000000);
             this.physics.add.existing(this.screensaver);
             this.screensaver.body.setGravity(0, 0).setBounce(1).setCollideWorldBounds(true).setVelocity(200);
+            
             let circlePosX = Phaser.Math.Between(100,700);
             let circlePosY = Phaser.Math.Between(100,300);
             this.ballin=this.add.circle(circlePosX,circlePosY, 100, 0xffffff);
@@ -61,7 +60,16 @@
             this.hoverInteract(credits);
 
             start.on("pointerdown", ()=>{
+                this.cameras.main.fade(1000, 0,0,0);
                 this.time.delayedCall(1000, () => this.scene.start('transition1'));
+            });
+            inventory.on("pointerdown", ()=>{
+                this.cameras.main.fade(1000, 0,0,0);
+                this.time.delayedCall(1000, () => this.scene.start('transition2'));
+            });
+            credits.on("pointerdown", ()=>{
+                this.cameras.main.fade(1000, 0,0,0);
+                this.time.delayedCall(1000, () => this.scene.start('end'));
             });
         }
     }
@@ -85,18 +93,17 @@
         hoverInteract(text){
             text.on("pointerover",()=>{
                 text.setColor("#ffffff");
-                console.log("deez");
             })
             text.on("pointerout",()=>{
                 text.setColor("#EDC02C");
-                console.log("nuts");
             })
         }
         
         create ()
         {
             this.counter = 0;
-            this.add.rectangle(0, 0, 2000, 2000, 0xA2EEEB);
+            this.cameras.main.fadeIn(500, 0, 0, 0);
+            this.add.rectangle(0, 0, 2000, 2000, 0x785741);
             const par1 = this.add.text(400, 150, "You've come home from a busy day at school.\nYour parents are proud\nYou've finished your second year of school.", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
             const par2 = this.add.text(400, 300, "Now here you stand at home,\nTwo months of summer break!\nWith a long time to explore limitless possibilities.", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
             const par3 = this.add.text(400, 400, "sample button here", {align: "center",fontFamily:"Baskerville",fontStyle:"bold",fontSize:30,color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
@@ -130,7 +137,7 @@
 
             // note: it is possible for people to skip the cutscene because of this, might change in the future
             par3.on("pointerdown",()=>{
-                this.time.delayedCall(1000, () => this.scene.start('gameplay'));
+                this.time.delayedCall(1000, () => this.scene.start('gameplay', {limit: 60}));
             })
         }
     }
@@ -146,26 +153,18 @@
         create ()
         {
             
+            this.add.rectangle(0, 0, 2000, 2000, 0x785741);
+            this.cameras.main.fadeIn(500, 0, 0, 0);
+            const par1 = this.add.text(400, 300, "20 Years Later...", 
+            {align: "center",fontFamily:"Baskerville",
+            fontStyle:"bold",fontSize:100,
+            color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
 
-            const text = this.add.text(400, 300, '20 years later', { align: 'center' }, 0xFF69B4);
-            text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
-            text.setOrigin(0.5, 0.5);
-            text.setResolution(window.devicePixelRatio);
-            text.setFontFamily('Arial');
-            text.setFontStyle('bold');
-            text.setFontSize(100);
-            text.preFX.setPadding(32);
-            const fx = text.preFX.addShadow(0, 0, 0.06, 0.75, 0x000000, 4, 0.8);
+            const par2 = this.add.text(400, 400, "click to continue", 
+            {align: "center",fontFamily:"Baskerville",
+            fontStyle:"bold",fontSize:20,
+            color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
 
-            const text1 = this.add.text(400, 400, 'click to continue', { align: 'center' }, 0xFF69B4);
-            text1.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
-            text1.setOrigin(0.5, 0.5);
-            text1.setResolution(window.devicePixelRatio);
-            text1.setFontFamily('Arial');
-            text1.setFontStyle('bold');
-            text1.setFontSize(20);
-            text1.preFX.setPadding(32);
-            const fx1 = text1.preFX.addShadow(0, 0, 0.06, 0.75, 0x000000, 4, 0.8);
             this.input.on('pointerdown', () => {
                 this.cameras.main.fade(1000, 0,0,0);
                 this.time.delayedCall(1000, () => this.scene.start('gameplay', this.data));
@@ -185,27 +184,17 @@
         create ()
         {
             
+            this.add.rectangle(0, 0, 2000, 2000, 0x785741);
+            this.cameras.main.fadeIn(500, 0, 0, 0);
+            const par1 = this.add.text(400, 300, "40 Years Later...", 
+            {align: "center",fontFamily:"Baskerville",
+            fontStyle:"bold",fontSize:100,
+            color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
 
-            const text = this.add.text(400, 300, '40 years later', { align: 'center' }, 0xFF69B4);
-            text.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
-
-            text.setOrigin(0.5, 0.5);
-            text.setResolution(window.devicePixelRatio);
-            text.setFontFamily('Arial');
-            text.setFontStyle('bold');
-            text.setFontSize(100);
-            text.preFX.setPadding(32);
-            const fx = text.preFX.addShadow(0, 0, 0.06, 0.75, 0x000000, 4, 0.8);
-
-            const text1 = this.add.text(400, 400, 'click to continue', { align: 'center' }, 0xFF69B4);
-            text1.setTint(0xFF69B4, 0xFFC0CB, 0x9F2B68, 0xE30B5C);
-            text1.setOrigin(0.5, 0.5);
-            text1.setResolution(window.devicePixelRatio);
-            text1.setFontFamily('Arial');
-            text1.setFontStyle('bold');
-            text1.setFontSize(20);
-            text1.preFX.setPadding(32);
-            const fx1 = text1.preFX.addShadow(0, 0, 0.06, 0.75, 0x000000, 4, 0.8);
+            const par2 = this.add.text(400, 400, "click to continue", 
+            {align: "center",fontFamily:"Baskerville",
+            fontStyle:"bold",fontSize:20,
+            color:"#EDC02C",resolution:window.devicePixelRatio,}).setOrigin(0.5,0.5);
             
             this.input.on('pointerdown', () => {
                 this.cameras.main.fade(1000, 0,0,0);
@@ -215,24 +204,24 @@
     }
     class End extends Phaser.Scene
     {   
-        totalSteps = 20;
-        totalMems = 7;
-        totalTime = 100;
         constructor() {
             super('end')
         }
         
         create ()
         {
+            this.add.rectangle(0, 0, 2000, 2000, 0x785741);
             this.w = this.game.config.width;
             this.h = this.game.config.height;
-
+            
             this.label = this.add.text(100, 100, '')
     		.setWordWrapWidth(this.w*14/16)
             .setFontSize(this.w/20)
-            .setTint(0x869d4d)
+            .setTint(0xEDC02C)
+            .setFontFamily('baskerville');
+            
 
-    	    this.typewriteTextWrapped('I wonder.... \nWhat else is out there???\n\nThe End\n\n\n\nClick to Continue')
+    	    this.typewriteTextWrapped('I wonder.... \nWhat other memories are out there???\n\nThe End\n\n\n\nClick to Continue')
 
 
             this.input.on('pointerdown', () => {
@@ -280,30 +269,36 @@
         }
         create ()
         {
+            this.add.rectangle(0, 0, 2000, 2000, 0x785741);
             this.w = this.game.config.width;
             this.h = this.game.config.height;
 
             const text = this.add.text(this.w/2, this.h*1/8, "Credits");
             text.setOrigin(0.5);
             text.setFontSize(this.w/20);
-            text.setTint(0x869d4d);  
+            text.setTint(0xEDC02C)
+            text.setFontFamily('baskerville'); 
             //Production Lead: Dexter Zhang\nBackup Tech: Michael Law\nBackup Testing: George Gomez
 
             const text1 = this.add.text(this.w/12, this.h*1/4, 'Technology Lead');
             text1.setFontSize(this.w/35);
-            text1.setTint(0x869d4d);  
+            text1.setTint(0xEDC02C)
+            text1.setFontFamily('baskerville'); 
 
             const text2 = this.add.text(this.w/12, this.h*5/16, 'Testing Lead');
             text2.setFontSize(this.w/35);
-            text2.setTint(0x869d4d);  
+            text2.setTint(0xEDC02C)
+            text2.setFontFamily('baskerville');  
 
             const text3 = this.add.text(this.w/12, this.h*6/16, 'Production Lead');
             text3.setFontSize(this.w/35);
-            text3.setTint(0x869d4d);
+            text3.setTint(0xEDC02C)
+            text3.setFontFamily('baskerville'); 
 
             const text4 = this.add.text(this.w/12, this.h*7/16, 'Backup Tech');
             text4.setFontSize(this.w/35);
-            text4.setTint(0x869d4d);
+            text4.setTint(0xEDC02C)
+            text4.setFontFamily('baskerville'); 
 
             // const text5 = this.add.text(this.w/12, this.h*8/16, 'Backup Testing');
             // text5.setFontSize(this.w/35);
@@ -312,34 +307,39 @@
             
             const text12 = this.add.text(this.w*6.5/10, -50, "Benthan Vu");
             text12.setFontSize(this.w/35);
-            text12.setTint(0x869d4d);
+            text12.setTint(0xEDC02C)
+            text12.setFontFamily('baskerville'); 
 
             const text22 = this.add.text(this.w*6.5/10, this.h + 50, "Kyler Mekmorakoth");
             text22.setFontSize(this.w/35);
-            text22.setTint(0x869d4d);
+            text22.setTint(0xEDC02C)
+            text22.setFontFamily('baskerville'); 
 
             const text32 = this.add.text(-200, this.h*6/16, "Dexter Zhang");
             text32.setFontSize(this.w/35);
-            text32.setTint(0x869d4d);
+            text32.setTint(0xEDC02C)
+            text32.setFontFamily('baskerville'); 
 
             const text42 = this.add.text(this.w*6.5/10, -50, "Michael Law");
             text42.setFontSize(this.w/35);
-            text42.setTint(0x869d4d);
+            text42.setTint(0xEDC02C)
+            text42.setFontFamily('baskerville'); 
 
             const text52 = this.add.text(-200, this.h*8/16, "George Gomez");
             text52.setFontSize(this.w/35);
-            text52.setTint(0x869d4d);
+            text52.setTint(0xEDC02C)
+            text52.setFontFamily('baskerville'); 
 
             const text31 = this.add.text(this.w/2, 800, "QR Code to see Global Player Statistics");
             text31.setFontSize(this.w/35);
-            text31.setTint(0x869d4d).setOrigin(0.5);
+            text31.setTint(0xEDC02C).setFontFamily('baskerville').setOrigin(0.5);
 
             const image32 = this.add.image(this.w/2, 800, 'qrcode').setScale(0.4);
 
             // add clickable link to https://cmpm-120-final---long-time-statistics.glitch.me/
             const text33 = this.add.text(this.w/2, 800, "Or click here!");
             text33.setFontSize(this.w/35);
-            text33.setOrigin(0.5);
+            text33.setOrigin(0.5).setFontFamily('baskerville');
             text33.setInteractive({usehandCursor: true});
             text33.on('pointerdown', () => {
                 window.open("https://cmpm-120-final---long-time-statistics.glitch.me/", "_blank");
