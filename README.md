@@ -3,12 +3,9 @@ Getting Old
 Play it here: 
 https://bxviu.github.io/CMPM-120---Final-Project/index.html 
 
-Play the prototypes here: 
-
+Play the prototypes here: \n
 Core Gameplay - https://bxviu.github.io/CMPM-120---Final-Project/core-gameplay-1.html 
-
 Cinematics - https://bxviu.github.io/CMPM-120---Final-Project/cinematics-1.html 
-
 Scene Flow - https://bxviu.github.io/CMPM-120---Final-Project/scene-flow-1.html 
 
 
