@@ -55,8 +55,15 @@ class Gameplay extends Phaser.Scene
 
         this.load.path = './assets/sounds/';
         this.load.audio('bgMusic', "miamiSong.wav");
-        this.load.audio('plink', "plink.mp3")
-
+        this.load.audio('plink', "plink.mp3");
+        this.load.audio('click_1', "Click_1.mp3");
+        this.load.audio('click_2', "Click_2.mp3");
+        this.load.audio('click_3', "Click_3.mp3");
+        this.load.audio('zipper_1', "Zipper_1.mp3");
+        this.load.audio('zipper_2', "Zipper_2.mp3");
+        this.load.audio('zipper_3', "Zipper_3.mp3");
+        this.load.audio('walk', "Walk.mp3");
+        this.load.audio('ambient', "birds-and-dogs-ambient-54606.mp3");
     }
     
     create ()
@@ -73,10 +80,14 @@ class Gameplay extends Phaser.Scene
         );
         
         this.bgMusic = this.sound.add('bgMusic', { loop: true });
+        this.ambientNoise = this.sound.add('ambient', { loop: true }).setVolume(0.15)
+        this.ambientNoise.play();
+        this.ambientNoise.setSeek(Math.random()*this.ambientNoise.duration);
+        this.walkingNoise = this.sound.add('walk', { loop: false }).setVolume(0.35);
         if (!this.muteMusic) {
             this.bgMusic.play();
         }
-        console.log(this)
+        // console.log(this)
 
         this.sceneDuration = 0;
         this.timer = false;
@@ -91,7 +102,7 @@ class Gameplay extends Phaser.Scene
         };
 
         this.player = (new Player(this, 0, 145, 'InputName', {speed:50+(25*(3 - this.level)), items:this.playerItems}));
-        console.log(this.player.speed)
+        // console.log(this.player.speed)
 
         this.cameras.main.fadeIn(500, 0, 0, 0)
         this.player.setAlpha(0);
@@ -231,7 +242,7 @@ class Gameplay extends Phaser.Scene
         //settings in top right corner
         this.makeSettingsMenu();
 
-        let plinkNoise = this.sound.add('plink', { loop: false });
+        // let plinkNoise = this.sound.add('plink', { loop: false });
 
         this.inventoryButton.setInteractive({useHandCursor: true});
         this.inventoryButton.on('pointerdown', () => {
@@ -244,7 +255,8 @@ class Gameplay extends Phaser.Scene
                 yoyo: true,
                 repeat: 0
                 });
-            plinkNoise.play();
+            // plinkNoise.play();
+            this.playInventoryNoise();
             this.time.delayedCall(300, () => {
                 this.scene.pause('gameplay');
                 this.scene.launch('inventory', {items:this.player.items, nextScene: 'gameplay'});
@@ -281,7 +293,8 @@ class Gameplay extends Phaser.Scene
                         }
                         this.stats.totalItems += 1;
 
-                        plinkNoise.play();
+                        // plinkNoise.play();
+                        this.playInteractionNoise();
                         
                         let itemConfig = {
                             name:item.name, 
@@ -445,7 +458,7 @@ class Gameplay extends Phaser.Scene
         // allows player to click and drag to see the area around the player
         this.initialPointerPosition = null;
         this.input.on('pointerdown', function(pointer) {
-            console.log(this.onButton)
+            // console.log(this.onButton)
             if (!this.onButton) {
                 this.joyStick.setEnable(false);
                 this.camFocusPlayer = false;
@@ -543,6 +556,8 @@ class Gameplay extends Phaser.Scene
             limit = 10;
         }
         this.time.delayedCall(1000, () => {
+            this.bgMusic.stop();
+            this.ambientNoise.stop();
             this.scene.start("statistics", {stats: this.stats, items: this.player.items, limit: limit, level: this.level + 1});
         });
     }
@@ -584,6 +599,7 @@ class Gameplay extends Phaser.Scene
             this.moving.up = false;
             this.moving.down = false;
             // this.player.stopAnim();
+            this.walkingNoise.stop();
         }
 
         if (!this.pauseMovement && !this.timer && (this.moving.left || this.moving.right || this.moving.up || this.moving.down)) {
@@ -619,6 +635,14 @@ class Gameplay extends Phaser.Scene
 
         if (this.moving.left || this.moving.right || this.moving.up || this.moving.down) {
             this.stats.steps++;
+            // randomly play the walking noise
+            if (!this.walkingNoise.isPlaying) {
+                if (Math.random() < 0.01) {
+                    this.walkingNoise.play();
+                    //go to a random time in this noise
+                    this.walkingNoise.setSeek(Math.random()*this.walkingNoise.duration);
+                }
+            }
         }
 
         if (this.useInteractTutorial) {
@@ -898,6 +922,33 @@ class Gameplay extends Phaser.Scene
         })
     }
 
+    playInventoryNoise() {
+        //randomly play one of the 3 zipper noises
+        let random = Phaser.Math.Between(0,2);
+        if (random == 0) {
+            this.sound.add('zipper_1', { loop: false }).play();
+        }
+        else if (random == 1) {
+            this.sound.add('zipper_2', { loop: false }).play();
+        }
+        else {
+            this.sound.add('zipper_3', { loop: false }).play();
+        }
+    }
+
+    playInteractionNoise() {
+        //randomly play one of the 3 click noises
+        let random = Phaser.Math.Between(0,2);
+        if (random == 0) {
+            this.sound.add('click_1', { loop: false }).play();
+        }
+        else if (random == 1) {
+            this.sound.add('click_2', { loop: false }).play();
+        }
+        else {
+            this.sound.add('click_3', { loop: false }).play();
+        }
+    }
 }
 
 class Entity extends Phaser.GameObjects.Sprite
@@ -985,8 +1036,6 @@ class Player extends Entity
     }
 
     checkItem(checkItem, checkList) {
-        console.log(checkItem)
-        console.log(checkList)
         let bruh = false;
         checkList.forEach(item => {
             if (item.name == checkItem.name)

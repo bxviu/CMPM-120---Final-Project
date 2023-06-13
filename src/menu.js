@@ -25,6 +25,11 @@ class Menu extends Phaser.Scene {
         this.load.image('tree', 'Special Tree.png');
         this.load.image('swing', 'Swing.png');
         this.load.image('boat', 'Toy Boat.png');
+
+        this.load.path = './assets/sounds/';
+        this.load.audio('zipper_1', "Zipper_1.mp3");
+        this.load.audio('zipper_2', "Zipper_2.mp3");
+        this.load.audio('zipper_3', "Zipper_3.mp3");
     }   
     create() {
         this.wholeContainer = this.add.container(400, -1000);
@@ -176,7 +181,6 @@ class Inventory extends Menu {
         this.load.scenePlugin('rexuiplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', 'rexUI', 'rexUI');
     }
     init(data) {
-        console.log(data.items);
         this.items = data.items;
         this.nextScene = data.nextScene;
     }
@@ -351,6 +355,17 @@ class Inventory extends Menu {
         })
             .setInteractive()
             .on('pointerdown', function () {
+                //randomly play one of the 3 zipper noises
+                let random = Phaser.Math.Between(0,2);
+                if (random == 0) {
+                    scene.sound.add('zipper_1', { loop: false }).play();
+                }
+                else if (random == 1) {
+                    scene.sound.add('zipper_2', { loop: false }).play();
+                }
+                else {
+                    scene.sound.add('zipper_3', { loop: false }).play();
+                }
                 scene.tweens.add({
                     targets: this.getElement('background'),
                     scaleX: 0.9,
@@ -401,7 +416,6 @@ class Statistics extends Menu {
     }
     create() {
         super.create();
-        console.log(this.data);
         let configTitle = {
             font: "40px Arial",
             fill: "#000000",
@@ -529,7 +543,16 @@ class Statistics extends Menu {
                 yoyo: true,
                 repeat: 0
                 });
-            plinkNoise.play();
+            let random = Phaser.Math.Between(0,2);
+            if (random == 0) {
+                this.sound.add('zipper_1', { loop: false }).play();
+            }
+            else if (random == 1) {
+                this.sound.add('zipper_2', { loop: false }).play();
+            }
+            else {
+                this.sound.add('zipper_3', { loop: false }).play();
+            }
             this.time.delayedCall(300, () => {
                 this.scene.pause('statistics');
                 this.scene.launch('inventory', {items:this.data.items, nextScene: 'statistics'});
@@ -585,6 +608,11 @@ class Statistics extends Menu {
             method: 'POST',
             mode: 'no-cors',
             body: JSON.stringify(stats)
-        })
+        }).then(
+            (response) => {
+                (response); 
+                console.log("data sent to server");
+            }
+        )
     }
 }
