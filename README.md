@@ -1,15 +1,15 @@
 Getting Old
 
-[mainGame] Play it here: 
+Play it here: 
 https://bxviu.github.io/CMPM-120---Final-Project/index.html 
 
-[prototypes] Play the prototypes here: 
+Play the prototypes here: 
 Core Gameplay - https://bxviu.github.io/CMPM-120---Final-Project/core-gameplay-1.html 
 Cinematics - https://bxviu.github.io/CMPM-120---Final-Project/cinematics-1.html 
 Scene Flow - https://bxviu.github.io/CMPM-120---Final-Project/scene-flow-1.html 
 
 
-[theme] We chose to pursue the idea of "nearby in space, but distant in time" by having an older version of the character revisit his childhood home and rediscover his memories as a child. So the character is physically near the space but the events that he's examining happened a long time ago. 
+We chose to pursue the idea of "nearby in space, but distant in time" by having an older version of the character revisit his childhood home and rediscover his memories as a child. So the character is physically near the space but the events that he's examining happened a long time ago. 
 
 
 [selectableRequirements] The documentation describes which of the three selectable requirements your team is attempting to satisfy (see below).
