@@ -32,6 +32,7 @@ class Gameplay extends Phaser.Scene
         this.load.image('interactButton', 'interactButton.png');
         this.load.image('inventoryButton', 'inventoryButton.png');
         this.load.image('settingsButton', 'settingsButton.png');
+        this.load.image('xButton', 'xButton.png');
         this.load.image('box', 'box.png');
         this.load.image('boxBig', 'box-big.png');
 
@@ -218,6 +219,9 @@ class Gameplay extends Phaser.Scene
         this.joyStick.on('pointerdown', (pointer) => {this.onButton = true;});
         this.joyStick.on('pointerup', (pointer) => {this.onButton = false;});
 
+        // for ppl on computer
+        this.cursorKeys = this.input.keyboard.createCursorKeys();
+
         this.inventoryButton = this.add.image(295, 228, "inventoryButton").setScrollFactor(0).setScale(0.75).setOrigin(0.5).setAlpha(0.5).setDepth(20);
         this.interactButton = this.add.image(505, 365, "interactButton").setScrollFactor(0).setScale(0.75).setOrigin(0.5).setAlpha(0.5).setDepth(20);
         if (this.level == 1) {
@@ -296,6 +300,11 @@ class Gameplay extends Phaser.Scene
                         }
                         // this means they have interacted with the item in this current level
                         this.player.gainItem(itemConfig, true);
+
+                        if (this.player.interacted.length >= 10) {
+                            this.playSkipTimerTutorial();
+                        }
+
                         item.animation.destroy();
                         //animate item fading away
                         item.glow.setActive(false);
@@ -539,11 +548,11 @@ class Gameplay extends Phaser.Scene
     }
 
     checkControls() {
-        if (this.joyStick.left) {
+        if (this.joyStick.left || this.cursorKeys.left.isDown) {
             this.camFocusPlayer = true;
             this.moving.left = true;
         }
-        else if (this.joyStick.right) {
+        else if (this.joyStick.right || this.cursorKeys.right.isDown) {
             this.camFocusPlayer = true;
             this.moving.right = true;
         }
@@ -554,11 +563,11 @@ class Gameplay extends Phaser.Scene
                 this.player.stopAnim();
         }
 
-        if (this.joyStick.up) {
+        if (this.joyStick.up || this.cursorKeys.up.isDown) {
             this.camFocusPlayer = true;
             this.moving.up = true;
         }
-        else if (this.joyStick.down) {
+        else if (this.joyStick.down || this.cursorKeys.down.isDown) {
             this.camFocusPlayer = true;
             this.moving.down = true;
         }
@@ -569,7 +578,7 @@ class Gameplay extends Phaser.Scene
                 this.player.stopAnim();
         }
 
-        if (this.joyStick.noKey) {
+        if (this.joyStick.noKey && !(this.cursorKeys.down.isDown || this.cursorKeys.up.isDown || this.cursorKeys.left.isDown || this.cursorKeys.right.isDown)) {
             this.moving.left = false;
             this.moving.right = false;
             this.moving.up = false;
@@ -767,6 +776,70 @@ class Gameplay extends Phaser.Scene
         });
     }
 
+    playSkipTimerTutorial() {
+        let box = this.addTextBox(400,700,"You have examined all\nthe items for this age!");
+        this.skipTimerButton = this.add.image(0, 15, 'xButton')
+        this.settingsMenu.add(this.skipTimerButton);
+        this.skipTimerButton.setInteractive({useHandCursor: true});
+        this.skipTimerButton.setDepth(5);
+        this.skipTimerButton.setScale(0.2);
+        this.skipTimerButton.setScrollFactor(0);
+
+        this.animateBox(box);
+
+        this.time.delayedCall(800, () => { 
+            this.input.once('pointerdown', () => {
+                this.animateOut(box);
+                let tutArrow2 = this.add.image(475, 215, 'arrow').setDepth(5).setScale(0.25).setScrollFactor(0).setRotation(Math.PI/2);
+                this.animateArrow(tutArrow2);
+                let box2 = this.addTextBox(400,700,"You can skip the rest\nof the timer by going to\nthe settings menu and clicking the\nX button.");
+                this.animateBox(box2);
+
+                this.time.delayedCall(800, () => { 
+                    this.input.once('pointerdown', () => {
+                        this.animateOut(box2);
+                        this.animateOut(tutArrow2);
+                        this.joyStick.setEnable(true);
+                        this.pauseMovement = false;
+                        this.timer = false;
+
+                        this.skipTimerButton.on('pointerdown', () => {
+                            this.tweens.add({
+                                targets: this.skipTimerButton,
+                                scaleX: 0.3,
+                                scaleY: 0.3,
+                                duration: 100,
+                                ease: 'Power2',
+                                yoyo: true,
+                                repeat: 0
+                                });
+                            this.sound.add('plink', { loop: false }).play();
+                            this.sceneDuration = 99999; 
+                        })
+                        .on('pointerover', () => {
+                            this.tweens.add({
+                                targets: this.skipTimerButton,
+                                angle: -180,
+                                duration: 200,
+                                ease: 'Power2',
+                            });
+                        })
+                        .on('pointerout', () => {
+                            this.tweens.add({
+                                targets: this.skipTimerButton,
+                                angle: 0,
+                                duration: 200,
+                                ease: 'Power2',
+                            });
+                        });
+                
+                    });
+                });
+
+            });
+        });
+    }
+
     addTextBox(x, y, text, style) {
         let container = this.add.container(x, y);
         let ntext = this.add.text(0, 0, text, {fontFamily: 'Arial', fontSize: '15px', color: '#000000', align: 'center', wordWrap: { width: 400, useAdvancedWrap: true}}).setOrigin(0.5);
@@ -902,8 +975,8 @@ class Player extends Entity
         }
     }
 
-    gainItem(item, save) {
-        if (save) {
+    gainItem(item, hasntInteractedYet) {
+        if (hasntInteractedYet) {
             this.interacted.push(item);
         }
         else {

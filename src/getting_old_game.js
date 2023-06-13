@@ -140,7 +140,7 @@
             .setFontSize(this.w/20)
             .setTint(0x869d4d)
 
-    	    this.typewriteTextWrapped('I wonder.... \nWhat else is out there???\n\nThe End')
+    	    this.typewriteTextWrapped('I wonder.... \nWhat else is out there???\n\nThe End\n\n\n\nClick to Continue')
 
 
             this.input.on('pointerdown', () => {
@@ -177,6 +177,14 @@
         init (data)
         {
             this.data = Object.keys(data).length === 0 ? {limit: 90} : data;
+        }
+        preload () {
+            this.load.path = './assets/images/';
+            this.load.image('qrcode', 'qrcode_toStats.png');
+            this.load.image('xButton', 'xButton.png');
+
+            this.load.path = './assets/sounds/';
+            this.load.audio('plink', "plink.mp3")
         }
         create ()
         {
@@ -230,6 +238,24 @@
             text52.setFontSize(this.w/35);
             text52.setTint(0x869d4d);
 
+            const text31 = this.add.text(this.w/2, 800, "QR Code to see Global Player Statistics");
+            text31.setFontSize(this.w/35);
+            text31.setTint(0x869d4d).setOrigin(0.5);
+
+            const image32 = this.add.image(this.w/2, 800, 'qrcode').setScale(0.4);
+
+            // add clickable link to https://cmpm-120-final---long-time-statistics.glitch.me/
+            const text33 = this.add.text(this.w/2, 800, "Or click here!");
+            text33.setFontSize(this.w/35);
+            text33.setOrigin(0.5);
+            text33.setInteractive({usehandCursor: true});
+            text33.on('pointerdown', () => {
+                window.open("https://cmpm-120-final---long-time-statistics.glitch.me/", "_blank");
+            })
+            .on('pointerover', () => text33.setStyle({ fill: '#0af' }))
+            .on('pointerout', () => text33.setStyle({ fill: '#fff' }));
+
+            this.xButton = this.add.image(this.w+100, 40, "xButton").setScale(1).setOrigin(0.5).setDepth(10);
 
             const chain1 = this.tweens.chain({
                 targets: text12,
@@ -273,17 +299,75 @@
                         duration: 1200,
                         ease: 'quad.out'
                     },
-
+                    {
+                        targets: image32,
+                        y: this.h/2+50,
+                        duration: 1200,
+                        ease: 'quad.out'
+                    },
+                    {
+                        targets: text31,
+                        y: this.h/2+190,
+                        duration: 1200,
+                        ease: 'quad.out'
+                    },
+                    {
+                        targets: text33,
+                        y: this.h/2+220,
+                        duration: 1200,
+                        ease: 'quad.out'
+                    },
+                    {
+                        targets: this.xButton,
+                        x: this.w-40,
+                        duration: 1200,
+                        ease: 'quad.out',
+                        onComplete: () => {
+                            this.xButton.setInteractive({useHandCursor: true});
+                            this.xButton.on('pointerdown', () => {
+                                this.tweens.add({
+                                    targets: this.xButton,
+                                    scaleX: 0.9,
+                                    scaleY: 0.9,
+                                    duration: 100,
+                                    ease: 'Power2',
+                                    yoyo: true,
+                                    repeat: 0
+                                    });
+                                this.sound.add('plink', { loop: false }).play();
+                                this.cameras.main.fade(1000, 0,0,0);
+                                this.time.delayedCall(1000, () => this.scene.start('title',{}));
+                            })
+                            .on('pointerover', () => {
+                                this.tweens.add({
+                                    targets: this.xButton,
+                                    angle: -180,
+                                    duration: 200,
+                                    ease: 'Power2',
+                                    alpha: 1
+                                });
+                            })
+                            .on('pointerout', () => {
+                                this.tweens.add({
+                                    targets: this.xButton,
+                                    angle: 0,
+                                    duration: 200,
+                                    ease: 'Power2',
+                                    alpha: 0.5
+                                });
+                            });
+                        }
+                    }
                 ],
                 loop: 0,
                 loopDelay: 300,
             });
             
 
-            this.input.on('pointerdown', () => {
-                this.cameras.main.fade(1000, 0,0,0);
-                this.time.delayedCall(1000, () => this.scene.start('title', this.data));
-            });
+            // this.input.on('pointerdown', () => {
+            //     this.cameras.main.fade(1000, 0,0,0);
+            //     this.time.delayedCall(1000, () => this.scene.start('title', this.data));
+            // });
             // working on in the scene-flow-1 html.
         }
     }
@@ -328,6 +412,7 @@
             gravity: { y: 0 } // Top down game, so no gravity
             },
         },
+        // scene: [Credits, Transition1, Transition2, End, Transition3,  , Cinematic, Gameplay, Inventory, Statistics]
         scene: [Title, Transition1, Transition2, End, Transition3,  Credits, Cinematic, Gameplay, Inventory, Statistics]
     };
 
