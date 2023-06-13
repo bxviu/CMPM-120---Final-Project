@@ -1,55 +1,19 @@
-# CMPM-120---Final-Project
+Getting Old
 
-Team Members:
-Benthan Vu,  
-Michael Law,  
-Dexter Zhang,  
-Kyler Mekmorakoth,  
+[mainGame] Play it here: 
+https://bxviu.github.io/CMPM-120---Final-Project/index.html 
+
+[prototypes] Play the prototypes here: 
+Core Gameplay - https://bxviu.github.io/CMPM-120---Final-Project/core-gameplay-1.html 
+Cinematics - https://bxviu.github.io/CMPM-120---Final-Project/cinematics-1.html 
+Scene Flow - https://bxviu.github.io/CMPM-120---Final-Project/scene-flow-1.html 
 
 
-## Scene Flow Prototype Requirements: 
+[theme] We chose to pursue the idea of "nearby in space, but distant in time" by having an older version of the character revisit his childhood home and rediscover his memories as a child. So the character is physically near the space but the events that he's examining happened a long time ago. 
 
-Scene Types 
-- We have Main title screen, 
-- a cinematic scene introducing backstory
-- the gameplay scene
-- transitions
-- A stat screen that displays things the player did so unique for each person
-- Ending Scene 
-- Credit Scene
 
-Communication between scenes: 
-- Transitions we have one called 20 years later and one 40 years later we do this by including a global variable 
-- Also the stat screen (not implemented yet) will take global variable of the player and display it
+[selectableRequirements] The documentation describes which of the three selectable requirements your team is attempting to satisfy (see below).
 
-Reachability:
-- Our game doesn't have a win or lose so you can reach everything just my clicking around. 
 
-Transitions: 
-- Scenes fade to black when you get to new scene. 
-
-## Core Gameplay Prototype Requirements
-
-Audio
-- Continuously looping placeholder background music
-- Placeholder noise that plays when player picks up an item or opens their inventory
-
-Visual
-- Placeholder images for player and items
-- Placeholder tilemap for the level
-
-Motion
-- Player movement using the arrows
-- Inventory animating in when player taps on the inventory
-- Camera moves slightly ahead of player in the direction they are moving
-
-Progression
-- Player can pick up items, which will be added to their inventory
-- A timer shows how much time the player has left in the world
-- Additionally, in [scene flow](https://bxviu.github.io/CMPM-120---Final-Project/scene-flow-1.html), there is progression of the story 
-
-Prefabs
-- Created a class "entity" that extends Phaser.GameObject.Sprite
-- "Player" and "item" classes extend the "entity" class
-- Created a class "menu" that extends Phaser.Scene
-- "Inventory" class extends the "menu" class
+[contributorCredits] The documentation identifies all of the direct contributors to the code and their assigned roles (e.g. "testing lead")
+[asset credits] If the team has built there game using assets created by anyone else (even if those assets were modified before inclusion in the game), the upstream source of those assets should be credited in the documentation as well.
