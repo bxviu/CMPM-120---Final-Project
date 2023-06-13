@@ -54,7 +54,8 @@ class Gameplay extends Phaser.Scene
         this.load.spritesheet('playerDown', 'ACharDown.png', { frameWidth: 14, frameHeight: 19 });
 
         this.load.path = './assets/sounds/';
-        this.load.audio('bgMusic', "miamiSong.wav");
+        // this.load.audio('bgMusic', "miamiSong.wav");
+        this.load.audio('bgMusic', "miamiSong.mp3");
         this.load.audio('plink', "plink.mp3");
         this.load.audio('click_1', "Click_1.mp3");
         this.load.audio('click_2', "Click_2.mp3");

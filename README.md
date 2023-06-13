@@ -23,6 +23,5 @@ We chose to pursue the idea of "nearby in space, but distant in time" by having 
 
 
 
-## Contributor Credits
-
-## Asset Credits
+[contributorCredits] The documentation identifies all of the direct contributors to the code and their assigned roles (e.g. "testing lead")
+[asset credits] If the team has built there game using assets created by anyone else (even if those assets were modified before inclusion in the game), the upstream source of those assets should be credited in the documentation as well.
