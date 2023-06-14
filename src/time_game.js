@@ -22,7 +22,8 @@ class Gameplay extends Phaser.Scene
         this.load.tilemapTiledJSON("map", "Getting_Old_Tilemap_large_v1.1.1.json");
 
         this.load.path = './assets/tilemap/';
-        this.load.image("tiles", "First Asset pack.png");
+        // this.load.image("tiles", "First Asset pack.png");
+        this.load.image("tiles", "Extended Asset Pack.png");
 
         this.load.path = './assets/images/';
         // this.load.image('item1', 'placeholder7-bow.png');
